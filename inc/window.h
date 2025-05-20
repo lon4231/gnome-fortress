@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _GFR_WINDOW_INCLUDED_
+#define _GFR_WINDOW_INCLUDED_
 
 #include "headers.h"
 
@@ -21,3 +22,6 @@ extern window_hnd_t window_hnd;
 
 void init_window_hnd();
 void handle_window(SDL_Event*event);
+
+
+#endif
