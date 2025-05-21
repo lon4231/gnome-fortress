@@ -32,6 +32,13 @@ struct gnome_team_t
     uint16_t target_y;
 }__attribute__((packed));
 
+struct zone_def_t
+{
+uint32_t x;
+uint32_t y;
+uint8_t radius;
+};
+
 struct terrain_buffer_t
 {
 uint32_t w;
@@ -39,6 +46,7 @@ uint32_t h;
 
 float*terrain;
 uint16_t*biome;
+zone_def_t*zdef;
 
 }__attribute__((packed));
 

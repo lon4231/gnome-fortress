@@ -53,9 +53,42 @@ terrain_buffer_t gen_terrain(uint32_t width, uint32_t height)
                                 0.5f) +
                                0.5f);
 
-                terrain.terrain[x + (y * width)] += noise * 0.1 * (1.0 / ((n*2) + 1));
+                terrain.terrain[x + (y * width)] += noise * 0.1 * (1.0 / ((n * 2) + 1));
             }
             terrain.terrain[x + (y * width)] = (terrain.terrain[x + (y * width)] > 1) ? 1 : terrain.terrain[x + (y * width)];
+        }
+    }
+    rng_state = time(NULL);
+
+    uint8_t zone_count = mmax(fast_rng() % 32, 16);
+
+    zone_def_t *zones = (zone_def_t *)malloc(zone_count * sizeof(zone_def_t));
+
+    for (uint8_t i = 0; i < zone_count; ++i)
+    {
+        zones[i].x = fast_rng() % width;
+        zones[i].y = fast_rng() % height;
+        zones[i].radius = fast_rng() % 128;
+    }
+
+    terrain.zdef=zones;
+
+    for (uint32_t y = 0; y < height; ++y)
+    {
+        for (uint32_t x = 0; x < width; ++x)
+        {
+            uint8_t nearest_zone=0;
+            float nearest_dist=0;
+            for(uint8_t i=0;i<zone_count;++i)
+            {
+                float dist=sqrtf((width*width)+(height*height));
+                if(dist<nearest_dist)
+                {
+                nearest_dist=dist;
+                nearest_zone=i;
+                }
+            }
+            terrain.biome[x+(y*width)]=nearest_zone;
         }
     }
 

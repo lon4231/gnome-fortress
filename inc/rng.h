@@ -5,7 +5,7 @@
 
 static uint64_t rng_state;
 
-inline uint8_t fast_rng()
+inline uint32_t fast_rng()
 {
     rng_state *= 0xda942042e4dd58b5;
     return rng_state >> 32;
