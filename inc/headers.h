@@ -8,12 +8,17 @@
 
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
+#include <glm/gtc/noise.hpp>
+
 
 #include <cstdio>
 #include <cstdlib>
 #include <cstdint>
 #include <stdfloat>
+#include <cmath>
 
+#define mmax(a,b) (((a)>(b))?(a):(b))
+#define mmin(a,b) (((a)<(b))?(a):(b))
 
 
 #endif

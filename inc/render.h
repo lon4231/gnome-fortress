@@ -3,13 +3,14 @@
 
 #include "headers.h"
 #include "window.h"
+#include "mwdt.h"
 
 struct render_hnd_t
 {
 
 
 
-SDL_Surface*map_terrain;
+SDL_Texture*map_terrain;
 
 
 };

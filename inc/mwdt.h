@@ -2,6 +2,7 @@
 #define _MAGIC_WORKING_GNOME_THREAD_DEFINED_
 
 #include "headers.h"
+#include "rng.h"
 
 struct gnome_attribs_t
 {
@@ -20,36 +21,30 @@ struct gnome_t
     uint16_t active_task;
     gnome_attribs_t attribs;
 
-} __attribute__((packed));
+}__attribute__((packed));
 
 struct gnome_team_t
 {
     uint32_t team_size;
-    gnome_t **gnome_buffer;
+    gnome_t *gnome_buffer;
 
     uint16_t target_x;
     uint16_t target_y;
 }__attribute__((packed));
 
-struct gnome_batch_t
+struct terrain_buffer_t
 {
-gnome_t batch_items[4096];
-gnome_batch_t*next;
+uint32_t w;
+uint32_t h;
+
+float*terrain;
+uint16_t*biome;
+
 }__attribute__((packed));
 
-struct gnome_buffer_t
-{
-    uint16_t id;
-    uint32_t gnome_count;
-    gnome_batch_t *gnome_buffer;
-};
+gnome_team_t gen_gnome_team(uint32_t size);
 
-
-gnome_buffer_t gen_gnome_buffer(uint32_t size);
-
-
-
-
+terrain_buffer_t gen_terrain(uint32_t width,uint32_t height);
 
 
 
