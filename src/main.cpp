@@ -5,11 +5,11 @@
 
 struct pixel_t
 {
-uint8_t a;
-uint8_t b;
-uint8_t g;
-uint8_t r;
-}__attribute__((packed));
+    uint8_t a;
+    uint8_t b;
+    uint8_t g;
+    uint8_t r;
+} __attribute__((packed));
 
 inline void init_libs()
 {
@@ -28,30 +28,22 @@ inline void handle_events()
     }
 }
 
-
-
 int main()
 {
     init_libs();
     init_window_hnd();
 
-
-    terrain_buffer_t buffer=gen_terrain(1024,1024);
-    
-    SDL_Surface*terrain_surface=SDL_CreateRGBSurfaceWithFormat(0,1024,1024,32,SDL_PIXELFORMAT_RGBA8888);
-
-    for(uint32_t i=0;i<1024*1024;++i)
+    terrain_buffer_t buffer = gen_terrain(32, 32);
+    SDL_Surface *terrain_surface = SDL_CreateRGBSurfaceWithFormat(0, buffer.w, buffer.h, 32, SDL_PIXELFORMAT_RGBA8888);
+    for (uint32_t i = 0; i < buffer.w * buffer.h; ++i)
     {
-    pixel_t*px=(pixel_t*)((uint8_t*)terrain_surface->pixels+(i*sizeof(uint32_t)));
-
-    px->g=buffer.terrain[i]*255;
-
-    px->r=buffer.biome[i]*32;
-
-    px->a=255;
+        pixel_t *px = (pixel_t *)((uint8_t *)terrain_surface->pixels + (i * sizeof(uint32_t)));
+        px->g = buffer.terrain[i] * 255;
+        px->r = buffer.biome[i] * (255 / buffer.zone_count);
+        px->b = buffer.resources[i];
+        px->a = 255;
     }
-
-    render_hnd.map_terrain=SDL_CreateTextureFromSurface(window_hnd.renderer,terrain_surface);
+    render_hnd.map_terrain = SDL_CreateTextureFromSurface(window_hnd.renderer, terrain_surface);
 
     init_renderer();
 

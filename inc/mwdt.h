@@ -37,6 +37,7 @@ struct zone_def_t
 uint32_t x;
 uint32_t y;
 uint8_t radius;
+uint16_t indexed_type;
 };
 
 struct terrain_buffer_t
@@ -46,8 +47,12 @@ uint32_t h;
 
 float*terrain;
 uint16_t*biome;
-uint16_t*resource_buffer;
+uint16_t*resources;
+
+uint8_t zone_count;
 zone_def_t*zdef;
+
+
 zone_def_t*rs_zdef;
 
 }__attribute__((packed));
