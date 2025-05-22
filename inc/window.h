@@ -1,7 +1,7 @@
 #ifndef _GFR_WINDOW_INCLUDED_
 #define _GFR_WINDOW_INCLUDED_
 
-#include "headers.h"
+#include <headers.h>
 
 struct window_hnd_t
 {
