@@ -78,10 +78,10 @@ terrain_buffer_t gen_terrain(uint32_t width, uint32_t height)
         for (uint32_t x = 0; x < width; ++x)
         {
             uint8_t nearest_zone=0;
-            float nearest_dist=0;
+            float nearest_dist=FLT_MAX;
             for(uint8_t i=0;i<zone_count;++i)
             {
-                float dist=sqrtf((width*width)+(height*height));
+                float dist=sqrtf(((zones[i].x-x)*(zones[i].x-x))+((zones[i].y-y)*(zones[i].y-y)));
                 if(dist<nearest_dist)
                 {
                 nearest_dist=dist;

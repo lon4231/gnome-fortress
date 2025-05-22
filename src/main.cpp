@@ -3,6 +3,14 @@
 #include "render.h"
 #include "mwdt.h"
 
+struct pixel_t
+{
+uint8_t a;
+uint8_t b;
+uint8_t g;
+uint8_t r;
+}__attribute__((packed));
+
 inline void init_libs()
 {
     SDL_Init(SDL_INIT_EVERYTHING);
@@ -34,7 +42,13 @@ int main()
 
     for(uint32_t i=0;i<1024*1024;++i)
     {
-    ((uint32_t*)terrain_surface->pixels)[i]=((uint8_t)(buffer.terrain[i]*255))<<16 | 0xFF;
+    pixel_t*px=(pixel_t*)((uint8_t*)terrain_surface->pixels+(i*sizeof(uint32_t)));
+
+    px->g=buffer.terrain[i]*255;
+
+    px->r=buffer.biome[i]*32;
+
+    px->a=255;
     }
 
     render_hnd.map_terrain=SDL_CreateTextureFromSurface(window_hnd.renderer,terrain_surface);

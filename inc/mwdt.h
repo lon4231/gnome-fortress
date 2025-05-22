@@ -46,7 +46,9 @@ uint32_t h;
 
 float*terrain;
 uint16_t*biome;
+uint16_t*resource_buffer;
 zone_def_t*zdef;
+zone_def_t*rs_zdef;
 
 }__attribute__((packed));
 
