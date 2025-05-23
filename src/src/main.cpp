@@ -1,5 +1,11 @@
-#include "headers.h"
-#include "window.h"
+#include <headers.h>
+#include <window.h>
+
+#include <main_menu.h>
+
+typedef void (*scene_fn_handle_t)();
+
+static scene_fn_handle_t scene_fn_handle;
 
 inline void init_libs()
 {
@@ -9,24 +15,18 @@ inline void init_libs()
     SDLNet_Init();
 }
 
-inline void handle_events()
-{
-    static SDL_Event event;
-    while (SDL_PollEvent(&event) != 0)
-    {
-        handle_window(&event);
-    }
-}
-
 int main()
 {
     init_libs();
     init_window_hnd();
 
+    main_menu_init();
+
+    scene_fn_handle = main_menu_update;
+
     while (window_hnd.running)
     {
-        handle_events();
-        
+        scene_fn_handle();
     }
     return 0;
 }
