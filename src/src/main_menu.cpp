@@ -6,6 +6,7 @@ static sbutton_t play_b;
 
 inline void handle_events()
 {
+    ui_frame();
     static SDL_Event event;
     while (SDL_PollEvent(&event) != 0)
     {
@@ -21,7 +22,7 @@ printf("AAAAAAAAAAA\n");
 
 void main_menu_init()
 {
-    play_b.onclick = aaaaaA;
+    play_b.onrelease = aaaaaA;
     play_b.rect={40,40,256,128};
 }
 

@@ -3,15 +3,18 @@
 
 #include <headers.h>
 
-typedef void (*sbutton_action_onclick_t)();
+typedef void (*sbutton_action_t)();
 
 struct sbutton_t
 {
     SDL_Rect rect;
-    sbutton_action_onclick_t onclick;
+    sbutton_action_t   onclick;
+    sbutton_action_t   onrelease;
+    sbutton_action_t   onhold;
 };
 
 void handle_ui(SDL_Event *event);
 void handle_sbutton(sbutton_t *button);
+void ui_frame();
 
 #endif
