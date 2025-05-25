@@ -11,6 +11,8 @@ struct sbutton_t
     sbutton_action_t   onclick;
     sbutton_action_t   onrelease;
     sbutton_action_t   onhold;
+    sbutton_action_t   onhover;
+    sbutton_action_t   noton;
 };
 
 void handle_ui(SDL_Event *event);

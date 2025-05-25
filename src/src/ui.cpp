@@ -25,15 +25,20 @@ void handle_ui(SDL_Event *event)
 
     case SDL_MOUSEMOTION:
         SDL_GetMouseState((int *)&mouse_x, (int *)&mouse_y);
+        mouse_x -= window_hnd.render_texture_rect.x;
+        mouse_y -= window_hnd.render_texture_rect.y;
+        mouse_x = mouse_x * RENDER_TEXTURE_W / window_hnd.render_texture_rect.w;
+        mouse_y = mouse_y * RENDER_TEXTURE_H / window_hnd.render_texture_rect.h;
+
         break;
     case SDL_MOUSEBUTTONDOWN:
         switch (event->button.button)
         {
         case SDL_BUTTON_LEFT:
-            l_click_set=1;
+            l_click_set = 1;
             break;
         case SDL_BUTTON_RIGHT:
-            r_click_set=1;
+            r_click_set = 1;
             break;
         default:
             break;
@@ -43,10 +48,10 @@ void handle_ui(SDL_Event *event)
         switch (event->button.button)
         {
         case SDL_BUTTON_LEFT:
-            l_click_set=0;
+            l_click_set = 0;
             break;
         case SDL_BUTTON_RIGHT:
-            r_click_set=0;
+            r_click_set = 0;
             break;
         default:
             break;
@@ -89,6 +94,19 @@ void handle_sbutton(sbutton_t *button)
                 button->onhold();
             }
             break;
+        case 0b00:
+            if (button->onhover != nullptr)
+            {
+                button->onhover();
+            }
+            break;
+        }
+    }
+    else
+    {
+        if (button->noton != nullptr)
+        {
+            button->noton();
         }
     }
 }

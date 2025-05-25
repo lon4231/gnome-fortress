@@ -3,17 +3,21 @@
 
 #include <headers.h>
 
+#define RENDER_TEXTURE_W 800
+#define RENDER_TEXTURE_H 600
+#define RENDER_TEXTURE_ASPECT_RATIO (float)((float)RENDER_TEXTURE_W / (float)RENDER_TEXTURE_H)
 struct window_hnd_t
 {
     SDL_Window *window;
     SDL_Renderer *renderer;
+    SDL_Rect render_texture_rect;
+    SDL_Texture *render_texture;
 
     uint32_t window_w;
     uint32_t window_h;
 
     bool running;
-
-} __attribute__((packed));
+};
 
 extern window_hnd_t window_hnd;
 
