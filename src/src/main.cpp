@@ -1,11 +1,10 @@
 #include <headers.h>
 #include <window.h>
 
+#include <main.h>
 #include <main_menu.h>
 
-typedef void (*scene_fn_handle_t)();
-
-static scene_fn_handle_t scene_fn_handle;
+scene_fn_handle_t scene_fn_handle;
 
 inline void init_libs()
 {
@@ -26,7 +25,8 @@ int main()
 
     while (window_hnd.running)
     {
-        scene_fn_handle();
+        if(scene_fn_handle!=nullptr)
+        {scene_fn_handle();}
     }
     return 0;
 }
