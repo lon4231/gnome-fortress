@@ -6,4 +6,7 @@
 void main_menu_init();
 void main_menu_update();
 
+void play_menu_update();
+void play_menu_init();
+
 #endif

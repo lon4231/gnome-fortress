@@ -6,8 +6,8 @@ cc:=g++
 
 gfr_src:=$(wildcard src/src/*.cpp) $(wildcard src/src/*/*.cpp) $(wildcard src/server/*.cpp) $(wildcard src/server/*/*.cpp)
 gfr_inc:=-Iinc -Ilib/lnx/include
-gfr_cflags:=-O3 -s -fno-stack-protector
-gfr_ldflags:=-Llib/lnx/lib -lSDL2 -lSDL2main -lSDL2_image -lSDL2_mixer -lSDL2_net -lz
+gfr_cflags:=-O3 -fno-stack-protector
+gfr_ldflags:=-Llib/lnx/lib -lSDL2 -lSDL2main -lSDL2_image -lSDL2_mixer -lSDL2_net -lSDL2_ttf -lz
 
 gfr_dt:=$(patsubst %.cpp,%.gfr,$(gfr_src))
 gfr_t:=$(patsubst %.cpp,%.o,$(gfr_src))

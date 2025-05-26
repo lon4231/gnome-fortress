@@ -3,8 +3,10 @@
 
 #include <headers.h>
 
-#define RENDER_TEXTURE_W 800
-#define RENDER_TEXTURE_H 600
+#define RENDER_TEXTURE_W (800)
+#define RENDER_TEXTURE_H (600)
+#define RENDER_TEXTURE_HW (RENDER_TEXTURE_W/2)
+#define RENDER_TEXTURE_HH (RENDER_TEXTURE_H/2)
 #define RENDER_TEXTURE_ASPECT_RATIO (float)((float)RENDER_TEXTURE_W / (float)RENDER_TEXTURE_H)
 struct window_hnd_t
 {

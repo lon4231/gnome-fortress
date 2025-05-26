@@ -1,8 +1,10 @@
 #include <headers.h>
 #include <window.h>
 
+#include <keyboard.h>
 #include <main.h>
 #include <main_menu.h>
+#include <server/server.h>
 
 scene_fn_handle_t scene_fn_handle;
 
@@ -18,15 +20,19 @@ int main()
 {
     init_libs();
     init_window_hnd();
+    init_keyboard();
 
+    
     main_menu_init();
 
     scene_fn_handle = main_menu_update;
 
     while (window_hnd.running)
     {
-        if(scene_fn_handle!=nullptr)
-        {scene_fn_handle();}
+        if (scene_fn_handle != nullptr)
+        {
+            scene_fn_handle();
+        }
     }
     return 0;
 }

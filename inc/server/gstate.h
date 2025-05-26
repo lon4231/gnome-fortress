@@ -9,6 +9,8 @@
 struct game_state_header_t
 {
 
-}__attribute__((packed));
+};
+
+
 
 #endif
