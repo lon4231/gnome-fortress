@@ -15,6 +15,8 @@ struct window_hnd_t
     SDL_Rect render_texture_rect;
     SDL_Texture *render_texture;
 
+    TTF_Font*font;
+
     uint32_t window_w;
     uint32_t window_h;
 

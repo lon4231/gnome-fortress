@@ -19,6 +19,16 @@ inline SDL_Surface *routines_load_surface(const char *path)
     return IMG_Load(path);
 }
 
+inline SDL_Texture *routines_render_text_texture(const char *text, SDL_Color color)
+{
+    SDL_Surface *surface = TTF_RenderText_Solid(window_hnd.font, text, color);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(window_hnd.renderer, surface);
+
+    SDL_FreeSurface(surface);
+
+    return texture;
+}
+
 inline void routines_draw_window()
 {
     SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 255);

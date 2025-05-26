@@ -10,6 +10,10 @@ void init_window_hnd()
     window_hnd.window_h = RENDER_TEXTURE_H;
     window_hnd.running = true;
 
+    window_hnd.font=TTF_OpenFont("assets/VGA8x8.ttf",8);
+
+    
+
     window_hnd.render_texture_rect = {0, 0, RENDER_TEXTURE_W, RENDER_TEXTURE_H};
     window_hnd.render_texture = SDL_CreateTexture(window_hnd.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 800, 600);
 }

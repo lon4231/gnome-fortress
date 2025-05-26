@@ -14,6 +14,7 @@ inline void init_libs()
     IMG_Init(IMG_INIT_PNG);
     Mix_OpenAudio(MIX_DEFAULT_FREQUENCY, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 4096);
     SDLNet_Init();
+    TTF_Init();
 }
 
 int main()

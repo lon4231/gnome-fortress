@@ -5,6 +5,8 @@
 
 typedef void (*ui_action_t)();
 
+extern char text_input_char;
+
 struct ui_button_t
 {
     SDL_Rect rect;
@@ -22,6 +24,7 @@ struct ui_text_input_t
     char *buffer;
     uint32_t buffer_index;
     uint32_t buffer_size;
+    ui_action_t oninput;
 };
 
 void handle_ui(SDL_Event *event);

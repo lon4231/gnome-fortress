@@ -13,10 +13,14 @@ struct menu_data_t
     SDL_Rect p_button_trect;
     ui_button_t p_button;
 
+    SDL_Texture *demo_text;
+
     ui_text_input_t ip_input;
     ui_text_input_t port_input;
 
-    ui_button_t connect_button;
+    SDL_Rect join_button_trect;
+    ui_button_t join_button;
+    SDL_Rect host_button_trect;
     ui_button_t host_button;
 };
 
@@ -39,9 +43,23 @@ void play_button_action()
     scene_fn_handle = play_menu_update;
 }
 
-void play_button_hover() { menu_data.p_button_trect = {0, 64, 64, 32}; }
-void play_button_press() { menu_data.p_button_trect = {0, 32, 64, 32}; }
-void play_button_default() { menu_data.p_button_trect = {0, 0, 64, 32}; }
+void play_button_hover() { menu_data.p_button_trect.y = 64; }
+void play_button_press() { menu_data.p_button_trect.y = 32; }
+void play_button_default() { menu_data.p_button_trect.y = 0; }
+
+void draw_text_input(ui_text_input_t *text_input)
+{
+    if (text_input->selected)
+    {
+        SDL_SetRenderDrawColor(window_hnd.renderer, 0, 255, 0, 255);
+        SDL_RenderFillRect(window_hnd.renderer, &text_input->rect);
+    }
+    else
+    {
+        SDL_SetRenderDrawColor(window_hnd.renderer, 255, 0, 0, 255);
+        SDL_RenderFillRect(window_hnd.renderer, &text_input->rect);
+    }
+}
 
 void main_menu_init()
 {
@@ -105,33 +123,23 @@ void main_menu_update()
 
 void play_menu_init()
 {
-menu_data.ip_input.rect={0,0,128,64};
-menu_data.ip_input.buffer=(char*)malloc(32+1);
-memset(menu_data.ip_input.buffer,0,32+1);
-menu_data.ip_input.buffer_index=0;
-menu_data.ip_input.buffer_size=32;
+    menu_data.ip_input.rect = {0, 0, 128, 64};
+    menu_data.ip_input.buffer = (char *)malloc(32 + 1);
+    memset(menu_data.ip_input.buffer, 0, 32 + 1);
+    menu_data.ip_input.buffer_index = 0;
+    menu_data.ip_input.buffer_size = 32;
 
-menu_data.port_input.rect={0,64,128,64};
-menu_data.port_input.buffer=(char*)malloc(32+1);
-memset(menu_data.port_input.buffer,0,32+1);
-menu_data.port_input.buffer_index=0;
-menu_data.port_input.buffer_size=32;
-}
+    menu_data.port_input.rect = {0, 64, 128, 64};
+    menu_data.port_input.buffer = (char *)malloc(32 + 1);
+    memset(menu_data.port_input.buffer, 0, 32 + 1);
+    menu_data.port_input.buffer_index = 0;
+    menu_data.port_input.buffer_size = 32;
 
-void draw_text_input(ui_text_input_t*text_input)
-{
-if(text_input->selected)
-{
-SDL_SetRenderDrawColor(window_hnd.renderer,0,255,0,255);
-SDL_RenderFillRect(window_hnd.renderer,&text_input->rect);
-}
-else
-{
-SDL_SetRenderDrawColor(window_hnd.renderer,255,0,0,255);
-SDL_RenderFillRect(window_hnd.renderer,&text_input->rect);
-
-
-}
+    menu_data.host_button.rect={800-256,0,256,128};
+    menu_data.join_button.rect={800-256,128,256,128};
+    
+    menu_data.host_button_trect={64,0,64,32};
+    menu_data.join_button_trect={128,0,64,32};
 }
 
 void play_menu_update()
@@ -146,8 +154,16 @@ void play_menu_update()
     SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 255);
     SDL_RenderClear(window_hnd.renderer);
 
+    SDL_RenderCopy(window_hnd.renderer, menu_data.menu_bg, NULL, NULL);
+
     draw_text_input(&menu_data.ip_input);
     draw_text_input(&menu_data.port_input);
+
+    SDL_RenderCopy(window_hnd.renderer, menu_data.p_button_texture, &menu_data.host_button_trect, &menu_data.host_button.rect);
+    SDL_RenderCopy(window_hnd.renderer, menu_data.p_button_texture, &menu_data.join_button_trect, &menu_data.join_button.rect);
+
+
+    SDL_RenderCopy(window_hnd.renderer, menu_data.demo_text, NULL, NULL);
 
     SDL_SetRenderTarget(window_hnd.renderer, NULL);
 

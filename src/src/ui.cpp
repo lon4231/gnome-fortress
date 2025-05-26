@@ -156,6 +156,7 @@ void handle_ui_text_input(ui_text_input_t *text_input)
     {
         if (isascii(text_input_char))
         {
+            if(text_input->oninput!=nullptr){text_input->oninput();}
             if (isprint(text_input_char))
             {
                 text_input->buffer[text_input->buffer_index] = text_input_char;
