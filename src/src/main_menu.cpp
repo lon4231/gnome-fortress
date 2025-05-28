@@ -30,6 +30,7 @@ struct menu_data_t
 };
 
 menu_data_t menu_data;
+game_init_data_t game_init_data;
 
 inline void handle_events()
 {
@@ -50,14 +51,14 @@ void play_button_action()
 
 void host_button_action()
 {
-    is_hosting_flag=true;
+    is_hosting_flag = true;
     init_game();
     scene_fn_handle = game_update;
 }
 
 void join_button_action()
 {
-    is_hosting_flag=false;
+    is_hosting_flag = false;
     init_game();
     scene_fn_handle = game_update;
 }
@@ -97,24 +98,28 @@ void draw_text_input(ui_text_input_t *text_input, SDL_Texture *text_texture)
 
 void destroy_main_menu()
 {
-SDL_DestroyTexture(menu_data.menu_bg);
-SDL_DestroyTexture(menu_data.title_texture);
-SDL_DestroyTexture(menu_data.buttons_texture);
+    SDL_DestroyTexture(menu_data.menu_bg);
+    SDL_DestroyTexture(menu_data.title_texture);
+    SDL_DestroyTexture(menu_data.buttons_texture);
 
-if(menu_data.ip_text_input_texture!=NULL)
-{SDL_DestroyTexture(menu_data.ip_text_input_texture);}
-if(menu_data.port_text_input_texture!=NULL)
-{SDL_DestroyTexture(menu_data.port_text_input_texture);}
-if(menu_data.name_text_input_texture!=NULL)
-{SDL_DestroyTexture(menu_data.name_text_input_texture);}
-
-
+    if (menu_data.ip_text_input_texture != NULL)
+    {
+        SDL_DestroyTexture(menu_data.ip_text_input_texture);
+    }
+    if (menu_data.port_text_input_texture != NULL)
+    {
+        SDL_DestroyTexture(menu_data.port_text_input_texture);
+    }
+    if (menu_data.name_text_input_texture != NULL)
+    {
+        SDL_DestroyTexture(menu_data.name_text_input_texture);
+    }
 }
 
 void main_menu_init()
 {
     menu_data.menu_bg = routines_load_texture("assets/sprites/absolutegnome.png");
-    menu_data.title_texture = routines_render_text_texture("GNOME FORTRESS",{47,87,83,255});
+    menu_data.title_texture = routines_render_text_texture("GNOME FORTRESS", {47, 87, 83, 255});
 
     menu_data.p_button_trect = {0, 0, 64, 32};
     menu_data.buttons_texture = routines_load_texture("assets/sprites/button.png");
@@ -202,6 +207,10 @@ void play_menu_init()
     };
     memset(menu_data.name_input.buffer, 0, 8 + 1);
 
+    game_init_data.ip = menu_data.ip_input.buffer;
+    game_init_data.port = menu_data.port_input.buffer;
+    game_init_data.p_name = menu_data.name_input.buffer;
+
     menu_data.host_button =
         {
             .rect = {800 - 256, RENDER_TEXTURE_HH - 128, 256, 128},
@@ -262,8 +271,8 @@ void play_menu_update()
 
     routines_draw_window();
 
-    if(scene_fn_handle!=play_menu_update)
+    if (scene_fn_handle != play_menu_update)
     {
-    destroy_main_menu();
+        destroy_main_menu();
     }
 }
