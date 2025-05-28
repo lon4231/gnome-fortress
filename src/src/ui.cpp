@@ -156,25 +156,26 @@ void handle_ui_text_input(ui_text_input_t *text_input)
     {
         if (isascii(text_input_char))
         {
-            if(text_input->oninput!=nullptr){text_input->oninput();}
             if (isprint(text_input_char))
             {
-                text_input->buffer[text_input->buffer_index] = text_input_char;
-                text_input->buffer_index = mmin(text_input->buffer_index + 1, text_input->buffer_size);
+                text_input->buffer_index = ((text_input->buffer_index + 1) > text_input->buffer_size - 1) ? (text_input->buffer_size) : (text_input->buffer_index + 1);
+                text_input->buffer[text_input->buffer_index-1] = text_input_char;
+
             }
             else
             {
                 switch (text_input_char)
                 {
-                case '\b':
-                    text_input->buffer[text_input->buffer_index] = '\0';
+                    case '\b':
                     text_input->buffer_index = mmax((int)text_input->buffer_index - 1, 0);
+                    text_input->buffer[text_input->buffer_index] = '\0';
                     break;
-
-                default:
+                    
+                    default:
                     break;
                 }
             }
+            if(text_input->oninput!=nullptr){text_input->oninput();}
         }
     }
 }

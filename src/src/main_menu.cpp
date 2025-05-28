@@ -4,6 +4,8 @@
 #include <main.h>
 #include <rndr_routines.h>
 #include <keyboard.h>
+#include <server/server.h>
+#include <game.h>
 
 struct menu_data_t
 {
@@ -13,13 +15,16 @@ struct menu_data_t
     SDL_Rect p_button_trect;
     ui_button_t p_button;
 
-    SDL_Texture *demo_text;
-
     ui_text_input_t ip_input;
+    SDL_Texture *ip_text_input_texture;
     ui_text_input_t port_input;
+    SDL_Texture *port_text_input_texture;
+    ui_text_input_t name_input;
+    SDL_Texture *name_text_input_texture;
 
     SDL_Rect join_button_trect;
     ui_button_t join_button;
+
     SDL_Rect host_button_trect;
     ui_button_t host_button;
 };
@@ -43,38 +48,64 @@ void play_button_action()
     scene_fn_handle = play_menu_update;
 }
 
-void play_button_hover() { menu_data.p_button_trect.y = 64; }
-void play_button_press() { menu_data.p_button_trect.y = 32; }
-void play_button_default() { menu_data.p_button_trect.y = 0; }
-
-void draw_text_input(ui_text_input_t *text_input)
+void host_button_action()
 {
+    init_server(atoi(menu_data.port_input.buffer));
+    scene_fn_handle = game_update;
+}
+
+void join_button_action()
+{
+}
+
+SDL_Texture **current_text_input_texture_handle;
+ui_text_input_t *current_text_input;
+void text_input_texture_update()
+{
+    if (current_text_input_texture_handle != NULL)
+    {
+        SDL_DestroyTexture(*current_text_input_texture_handle);
+    }
+    *current_text_input_texture_handle = routines_render_text_texture(current_text_input->buffer, {255, 255, 255, 255});
+}
+
+static SDL_Rect *buttons_rect_ptr;
+void buttons_hover() { buttons_rect_ptr->y = 64; }
+void buttons_press() { buttons_rect_ptr->y = 32; }
+void buttons_default() { buttons_rect_ptr->y = 0; }
+
+void draw_text_input(ui_text_input_t *text_input, SDL_Texture *text_texture)
+{
+    text_input->rect.w = mmax(strlen(text_input->buffer), 1) * 32;
     if (text_input->selected)
     {
-        SDL_SetRenderDrawColor(window_hnd.renderer, 0, 255, 0, 255);
+        SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 255);
         SDL_RenderFillRect(window_hnd.renderer, &text_input->rect);
+        SDL_RenderCopy(window_hnd.renderer, text_texture, NULL, &text_input->rect);
     }
     else
     {
-        SDL_SetRenderDrawColor(window_hnd.renderer, 255, 0, 0, 255);
+        SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 255);
         SDL_RenderFillRect(window_hnd.renderer, &text_input->rect);
+        SDL_RenderCopy(window_hnd.renderer, text_texture, NULL, &text_input->rect);
     }
 }
 
 void main_menu_init()
 {
     menu_data.menu_bg = routines_load_texture("assets/sprites/absolutegnome.png");
-    menu_data.title_texture = routines_load_texture("assets/sprites/main_title.png");
+    menu_data.title_texture = routines_render_text_texture("GNOME FORTRESS",{47,87,83,255});
 
+    menu_data.p_button_trect = {0, 0, 64, 32};
     menu_data.p_button_texture = routines_load_texture("assets/sprites/button.png");
     menu_data.p_button =
         {
             .rect = {RENDER_TEXTURE_HW - 128, RENDER_TEXTURE_HH - 64, 256, 128},
-            .onclick = play_button_press,
+            .onclick = buttons_hover,
             .onrelease = play_button_action,
-            .onhold = play_button_press,
-            .onhover = play_button_hover,
-            .noton = play_button_default,
+            .onhold = buttons_press,
+            .onhover = buttons_hover,
+            .noton = buttons_default,
         };
 }
 
@@ -105,6 +136,7 @@ void main_menu_update()
 {
     handle_events();
 
+    buttons_rect_ptr = &menu_data.p_button_trect;
     handle_ui_button(&menu_data.p_button);
 
     SDL_SetRenderTarget(window_hnd.renderer, window_hnd.render_texture);
@@ -123,31 +155,74 @@ void main_menu_update()
 
 void play_menu_init()
 {
-    menu_data.ip_input.rect = {0, 0, 128, 64};
-    menu_data.ip_input.buffer = (char *)malloc(32 + 1);
-    memset(menu_data.ip_input.buffer, 0, 32 + 1);
-    menu_data.ip_input.buffer_index = 0;
-    menu_data.ip_input.buffer_size = 32;
+    menu_data.ip_input = {
+        .rect = {0, 0, 32, 32},
+        .buffer = (char *)malloc(16 + 1),
+        .buffer_index = 0,
+        .buffer_size = 16,
+        .oninput = text_input_texture_update,
+    };
+    memset(menu_data.ip_input.buffer, 0, 16 + 1);
 
-    menu_data.port_input.rect = {0, 64, 128, 64};
-    menu_data.port_input.buffer = (char *)malloc(32 + 1);
-    memset(menu_data.port_input.buffer, 0, 32 + 1);
-    menu_data.port_input.buffer_index = 0;
-    menu_data.port_input.buffer_size = 32;
+    menu_data.port_input = {
+        .rect = {0, 32, 32, 32},
+        .buffer = (char *)malloc(8 + 1),
+        .buffer_index = 0,
+        .buffer_size = 8,
+        .oninput = text_input_texture_update,
+    };
+    memset(menu_data.port_input.buffer, 0, 8 + 1);
 
-    menu_data.host_button.rect={800-256,0,256,128};
-    menu_data.join_button.rect={800-256,128,256,128};
-    
-    menu_data.host_button_trect={64,0,64,32};
-    menu_data.join_button_trect={128,0,64,32};
+    menu_data.name_input = {
+        .rect = {0, 64, 32, 32},
+        .buffer = (char *)malloc(8 + 1),
+        .buffer_index = 0,
+        .buffer_size = 8,
+        .oninput = text_input_texture_update,
+    };
+    memset(menu_data.name_input.buffer, 0, 8 + 1);
+
+    menu_data.host_button =
+        {
+            .rect = {800 - 256, RENDER_TEXTURE_HH - 128, 256, 128},
+            .onclick = buttons_hover,
+            .onrelease = host_button_action,
+            .onhold = buttons_press,
+            .onhover = buttons_hover,
+            .noton = buttons_default,
+        };
+    menu_data.join_button =
+        {
+            .rect = {800 - 256, RENDER_TEXTURE_HH, 256, 128},
+            .onclick = buttons_hover,
+            .onrelease = join_button_action,
+            .onhold = buttons_press,
+            .onhover = buttons_hover,
+            .noton = buttons_default,
+        };
+
+    menu_data.host_button_trect = {64, 0, 64, 32};
+    menu_data.join_button_trect = {128, 0, 64, 32};
 }
 
 void play_menu_update()
 {
     handle_events();
 
+    current_text_input = &menu_data.ip_input;
+    current_text_input_texture_handle = &menu_data.ip_text_input_texture;
     handle_ui_text_input(&menu_data.ip_input);
+    current_text_input = &menu_data.port_input;
+    current_text_input_texture_handle = &menu_data.port_text_input_texture;
     handle_ui_text_input(&menu_data.port_input);
+    current_text_input = &menu_data.name_input;
+    current_text_input_texture_handle = &menu_data.name_text_input_texture;
+    handle_ui_text_input(&menu_data.name_input);
+
+    buttons_rect_ptr = &menu_data.host_button_trect;
+    handle_ui_button(&menu_data.host_button);
+    buttons_rect_ptr = &menu_data.join_button_trect;
+    handle_ui_button(&menu_data.join_button);
 
     SDL_SetRenderTarget(window_hnd.renderer, window_hnd.render_texture);
 
@@ -156,14 +231,12 @@ void play_menu_update()
 
     SDL_RenderCopy(window_hnd.renderer, menu_data.menu_bg, NULL, NULL);
 
-    draw_text_input(&menu_data.ip_input);
-    draw_text_input(&menu_data.port_input);
+    draw_text_input(&menu_data.ip_input, menu_data.ip_text_input_texture);
+    draw_text_input(&menu_data.port_input, menu_data.port_text_input_texture);
+    draw_text_input(&menu_data.name_input, menu_data.name_text_input_texture);
 
     SDL_RenderCopy(window_hnd.renderer, menu_data.p_button_texture, &menu_data.host_button_trect, &menu_data.host_button.rect);
     SDL_RenderCopy(window_hnd.renderer, menu_data.p_button_texture, &menu_data.join_button_trect, &menu_data.join_button.rect);
-
-
-    SDL_RenderCopy(window_hnd.renderer, menu_data.demo_text, NULL, NULL);
 
     SDL_SetRenderTarget(window_hnd.renderer, NULL);
 
