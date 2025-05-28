@@ -38,6 +38,7 @@ else
 printf("SEVER ALREADY OPEN, DUMBASS!\r\n");
 }
 
+srv_state.client_count=2; 
 uint32_t clients_connected=1;
 char text_buffer[27];
 memcpy(text_buffer,"WAITING FOR PLAYERS:\0\0\0\0\0\0",27);
@@ -46,7 +47,6 @@ sprintf(text_buffer,"WAITING FOR PLAYERS: %02d/%02d",clients_connected,srv_state
 SDL_Texture*text=routines_render_text_texture(text_buffer,{47, 87, 83, 255});
 SDL_Rect rect={400-((13)*12),300-8,26*16,16};
 
-srv_state.client_count=2;
 
 while(window_hnd.running && (clients_connected<=srv_state.client_count))
 {
@@ -58,6 +58,8 @@ if(client_socket)
 printf("AHHHHHH\r\n");
 clients_connected++;
 sprintf(text_buffer,"WAITING FOR PLAYERS: %02d/%02d",clients_connected,srv_state.client_count);
+SDL_DestroyTexture(text);
+text=routines_render_text_texture(text_buffer,{47, 87, 83, 255});
 }
 
 
