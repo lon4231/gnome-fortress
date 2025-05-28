@@ -3,7 +3,9 @@
 
 #include <headers.h>
 #include <server/client.h>
+#include <window.h>
 
+extern bool is_hosting_flag;
 
 void init_game();
 void game_update();

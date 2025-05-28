@@ -11,7 +11,7 @@ struct menu_data_t
 {
     SDL_Texture *menu_bg;
     SDL_Texture *title_texture;
-    SDL_Texture *p_button_texture;
+    SDL_Texture *buttons_texture;
     SDL_Rect p_button_trect;
     ui_button_t p_button;
 
@@ -50,12 +50,16 @@ void play_button_action()
 
 void host_button_action()
 {
-    init_server(atoi(menu_data.port_input.buffer));
+    is_hosting_flag=true;
+    init_game();
     scene_fn_handle = game_update;
 }
 
 void join_button_action()
 {
+    is_hosting_flag=false;
+    init_game();
+    scene_fn_handle = game_update;
 }
 
 SDL_Texture **current_text_input_texture_handle;
@@ -91,13 +95,29 @@ void draw_text_input(ui_text_input_t *text_input, SDL_Texture *text_texture)
     }
 }
 
+void destroy_main_menu()
+{
+SDL_DestroyTexture(menu_data.menu_bg);
+SDL_DestroyTexture(menu_data.title_texture);
+SDL_DestroyTexture(menu_data.buttons_texture);
+
+if(menu_data.ip_text_input_texture!=NULL)
+{SDL_DestroyTexture(menu_data.ip_text_input_texture);}
+if(menu_data.port_text_input_texture!=NULL)
+{SDL_DestroyTexture(menu_data.port_text_input_texture);}
+if(menu_data.name_text_input_texture!=NULL)
+{SDL_DestroyTexture(menu_data.name_text_input_texture);}
+
+
+}
+
 void main_menu_init()
 {
     menu_data.menu_bg = routines_load_texture("assets/sprites/absolutegnome.png");
     menu_data.title_texture = routines_render_text_texture("GNOME FORTRESS",{47,87,83,255});
 
     menu_data.p_button_trect = {0, 0, 64, 32};
-    menu_data.p_button_texture = routines_load_texture("assets/sprites/button.png");
+    menu_data.buttons_texture = routines_load_texture("assets/sprites/button.png");
     menu_data.p_button =
         {
             .rect = {RENDER_TEXTURE_HW - 128, RENDER_TEXTURE_HH - 64, 256, 128},
@@ -144,7 +164,7 @@ void main_menu_update()
     SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 255);
     SDL_RenderClear(window_hnd.renderer);
     SDL_RenderCopy(window_hnd.renderer, menu_data.menu_bg, NULL, NULL);
-    SDL_RenderCopy(window_hnd.renderer, menu_data.p_button_texture, &menu_data.p_button_trect, &menu_data.p_button.rect);
+    SDL_RenderCopy(window_hnd.renderer, menu_data.buttons_texture, &menu_data.p_button_trect, &menu_data.p_button.rect);
 
     draw_title();
 
@@ -235,10 +255,15 @@ void play_menu_update()
     draw_text_input(&menu_data.port_input, menu_data.port_text_input_texture);
     draw_text_input(&menu_data.name_input, menu_data.name_text_input_texture);
 
-    SDL_RenderCopy(window_hnd.renderer, menu_data.p_button_texture, &menu_data.host_button_trect, &menu_data.host_button.rect);
-    SDL_RenderCopy(window_hnd.renderer, menu_data.p_button_texture, &menu_data.join_button_trect, &menu_data.join_button.rect);
+    SDL_RenderCopy(window_hnd.renderer, menu_data.buttons_texture, &menu_data.host_button_trect, &menu_data.host_button.rect);
+    SDL_RenderCopy(window_hnd.renderer, menu_data.buttons_texture, &menu_data.join_button_trect, &menu_data.join_button.rect);
 
     SDL_SetRenderTarget(window_hnd.renderer, NULL);
 
     routines_draw_window();
+
+    if(scene_fn_handle!=play_menu_update)
+    {
+    destroy_main_menu();
+    }
 }
