@@ -5,11 +5,11 @@
 
 struct keyboard_hnd_t
 {
-uint8_t*kmap;
-uint8_t*last_kmap;
+    uint8_t *kmap;
+    uint8_t *last_kmap;
 };
 
-extern keyboard_hnd_t keyboard_hnd; 
+extern keyboard_hnd_t keyboard_hnd;
 
 void init_keyboard();
 void handle_keyboard();

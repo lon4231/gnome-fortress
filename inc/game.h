@@ -10,5 +10,4 @@ extern bool is_hosting_flag;
 void init_game();
 void game_update();
 
-
 #endif

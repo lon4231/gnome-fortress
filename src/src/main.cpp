@@ -17,7 +17,7 @@ inline void init_libs()
     TTF_Init();
 }
 
-int main()
+int main(int argc,char*argv[])
 {
     init_libs();
     init_window_hnd();

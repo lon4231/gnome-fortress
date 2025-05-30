@@ -6,11 +6,14 @@
 #define BOARD_WIDTH 512
 #define BOARD_HEIGHT 512
 
-struct game_state_header_t
+struct game_player_state_t
 {
-
+    char name[8];
+    uint32_t gnome_count;
 };
 
-
+struct game_state_header_t
+{
+};
 
 #endif

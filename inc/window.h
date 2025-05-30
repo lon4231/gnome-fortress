@@ -5,8 +5,8 @@
 
 #define RENDER_TEXTURE_W (800)
 #define RENDER_TEXTURE_H (600)
-#define RENDER_TEXTURE_HW (RENDER_TEXTURE_W/2)
-#define RENDER_TEXTURE_HH (RENDER_TEXTURE_H/2)
+#define RENDER_TEXTURE_HW (RENDER_TEXTURE_W / 2)
+#define RENDER_TEXTURE_HH (RENDER_TEXTURE_H / 2)
 #define RENDER_TEXTURE_ASPECT_RATIO (float)((float)RENDER_TEXTURE_W / (float)RENDER_TEXTURE_H)
 struct window_hnd_t
 {
@@ -15,7 +15,7 @@ struct window_hnd_t
     SDL_Rect render_texture_rect;
     SDL_Texture *render_texture;
 
-    TTF_Font*font;
+    TTF_Font *font;
 
     uint32_t window_w;
     uint32_t window_h;
