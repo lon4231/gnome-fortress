@@ -3,6 +3,7 @@
 
 #include <headers.h>
 #include <server/gstate.h>
+#include <server/net_routines.h>
 
 enum SERVER_RECV_TYPE
 {

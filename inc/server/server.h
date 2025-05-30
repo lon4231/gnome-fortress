@@ -3,12 +3,12 @@
 
 #include <headers.h>
 #include <server/gstate.h>
+#include <server/net_routines.h>
 
 #define MAX_CLIENTS 32
 
 struct client_handle_t
 {
-    char name[8];
     IPaddress client_addr;
     TCPsocket client_socket;
 };
