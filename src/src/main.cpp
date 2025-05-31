@@ -4,7 +4,7 @@
 #include <keyboard.h>
 #include <main.h>
 #include <main_menu.h>
-#include <server/server.h>
+#include <assets.h>
 
 scene_fn_handle_t scene_fn_handle;
 
@@ -22,7 +22,7 @@ int main(int argc,char*argv[])
     init_libs();
     init_window_hnd();
     init_keyboard();
-
+    load_assets();
     
     main_menu_init();
 
