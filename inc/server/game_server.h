@@ -2,7 +2,7 @@
 #define _IMAGINE_HOSTING_A_GAME_LIKE_WTF_DEFINED_
 
 #include <headers.h>
-#include <server/net_routines.h>
+#include <net_routines.h>
 
 #define BOARD_W 32
 #define BOARD_H 32

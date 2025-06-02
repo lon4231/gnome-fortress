@@ -2,7 +2,7 @@
 #define _GAME_DEFINED_
 
 #include <headers.h>
-#include <server/game_server.h>
+#include <game_server.h>
 
 struct game_state_t
 {

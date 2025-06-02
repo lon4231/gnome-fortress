@@ -7,8 +7,8 @@ mingw_cc:=x86_64-w64-mingw32-g++
 
 gfr_src:=$(wildcard src/src/*.cpp) $(wildcard src/src/*/*.cpp) $(wildcard src/server/*.cpp) $(wildcard src/server/*/*.cpp)
 
-gfr_inc:=-Iinc
-mingw_gfr_inc:=-Iinc -Ilibs/mingw/include
+gfr_inc:=-Iinc -Iinc/server
+mingw_gfr_inc:=-Iinc -Iinc/server -Ilibs/mingw/include
 
 gfr_cflags:=-O3 -fno-stack-protector
 

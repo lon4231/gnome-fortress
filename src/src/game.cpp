@@ -5,9 +5,7 @@
 #include <ui.h>
 #include <assets.h>
 
-#include <server/server.h>
-#include <server/server.h>
-#include <server/server.h>
+#include <server.h>
 
 
 struct ui_layer_t

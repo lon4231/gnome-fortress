@@ -1,2 +1,2 @@
-#include <server/game_server.h>
+#include <game_server.h>
 
