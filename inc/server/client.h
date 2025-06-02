@@ -13,4 +13,7 @@ struct client_hnd_t
 
 extern client_hnd_t client_handle;
 
+void init_client();
+void handle_client();
+
 #endif

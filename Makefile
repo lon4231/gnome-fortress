@@ -21,9 +21,10 @@ mgfr_dt:=$(patsubst %.cpp,%.mgfr,$(gfr_src))
 gfr_t:=$(patsubst %.cpp,%.o,$(gfr_src))
 
 
+all: compile_game test
+
 both: mingw_compile_game compile_game
 
-all: compile_game test
 
 compile_game: $(gfr_dt)
 	$(cc) $(notdir $(gfr_t)) -o out/gnomefort $(gfr_cflags) $(gfr_inc) $(gfr_ldflags)
