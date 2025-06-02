@@ -10,7 +10,7 @@ inline void routines_send_tcp(TCPsocket socket, void *buffer, uint32_t size)
     SDLNet_TCP_Send(socket, buffer, size);
 }
 
-inline void routines_recv_tcp(TCPsocket socket, void *buffer, uint32_t *size)
+inline void routines_recv_tcp(TCPsocket socket, void *buffer,uint32_t buffer_size, uint32_t *size)
 {
     uint32_t net_size;
     SDLNet_TCP_Recv(socket, &net_size, 4);

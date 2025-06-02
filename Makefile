@@ -30,13 +30,13 @@ compile_game: $(gfr_dt)
 	$(rm) $(notdir $(gfr_t))
 
 mingw_compile_game: $(mgfr_dt)
-	$(mingw_cc) $(notdir $(gfr_t)) -o out/win/gnomefort.exe $(gfr_cflags) $(mingw_gfr_inc) $(mingw_gfr_ldflags)
+	$(mingw_cc) $(notdir $(gfr_t)) -o out/gnomefort.exe $(gfr_cflags) $(mingw_gfr_inc) $(mingw_gfr_ldflags)
 	$(rm) $(notdir $(gfr_t))
 
 mingw_all: mingw_compile_game mingw_test
 
 mingw_test:
-	cd out && ./gnomefort
+	cd out && ./gnomefort.exe
 
 test:
 	cd out && ./gnomefort

@@ -5,6 +5,7 @@
 #include <rndr_routines.h>
 #include <keyboard.h>
 #include <assets.h>
+#include <game.h>
 
 struct menu_data_t
 {
@@ -42,10 +43,14 @@ void play_button_action()
 
 void host_button_action()
 {
+game_init();
+scene_fn_handle=game_update;
 }
 
 void join_button_action()
 {
+game_init();
+scene_fn_handle=game_update;
 }
 
 SDL_Texture **current_text_input_texture_handle;
