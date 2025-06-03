@@ -30,15 +30,20 @@ void draw_board()
 {
     SDL_SetRenderTarget(window_hnd.renderer, game_state.board_texture);
 
-    SDL_Rect trect = {0, 0, 16, 16};
-    SDL_Rect rect = {0, 0, 16, 16};
+    SDL_Rect trect = {0, 0, 8, 8};
+    SDL_Rect upper_trect = {0, 0, 8, 8};
+    SDL_Rect rect = {0, 0, 8, 8};
+    
     for (uint32_t i = 0; i < BOARD_W * BOARD_H; ++i)
     {
-        trect.x = game_state.remote_state.board[i] * 16;
-        trect.y = game_state.remote_state.disp_board[i] * 16;
-        rect.x = (i % BOARD_W) * 16;
-        rect.y = (i / BOARD_W) * 16;
-
+        trect.x = game_state.remote_state.board[i] * 8;
+        trect.y = game_state.remote_state.disp_board[i] * 8;
+        
+        upper_trect.x = game_state.remote_state.upper_board[i] * 8;
+        upper_trect.y = game_state.remote_state.upper_disp_board[i] * 8;
+        
+        rect.x = (i % BOARD_W) * 8;
+        rect.y = (i / BOARD_W) * 8;
         SDL_RendererFlip flip = SDL_FLIP_NONE;
         if (((game_state.remote_state.disp_board[i]^i)&1) == 1)
         {
@@ -46,6 +51,7 @@ void draw_board()
         }
 
         SDL_RenderCopyEx(window_hnd.renderer, runtime_assets.board_tiles, &trect, &rect, 0, NULL, flip);
+        SDL_RenderCopyEx(window_hnd.renderer, runtime_assets.board_tiles, &upper_trect, &rect, 0, NULL, flip);
     }
 
     SDL_SetRenderTarget(window_hnd.renderer, window_hnd.render_texture);
@@ -64,15 +70,10 @@ inline void handle_events()
 
 void game_init()
 {
-    memset(game_state.remote_state.board, 255, BOARD_W * BOARD_H);
+    init_game_state(&game_state.remote_state,8);
 
-    for (uint32_t i = 0; i < BOARD_W * BOARD_H; ++i)
-    {
-        game_state.remote_state.disp_board[i] = rand() % 4;
-    }
-
-    game_state.board_texture = SDL_CreateTexture(window_hnd.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, BOARD_W * 16, BOARD_H * 16);
-    game_state.board_rect = {0, 0, BOARD_W * 16, BOARD_H * 16};
+    game_state.board_texture = SDL_CreateTexture(window_hnd.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, BOARD_W * 8, BOARD_H * 8);
+    game_state.board_rect = {0, 0, BOARD_W*16,BOARD_H*16};
 
     ui_layer.ready_button_trect = {192, 0, 64, 32};
     ui_layer.ready_button =

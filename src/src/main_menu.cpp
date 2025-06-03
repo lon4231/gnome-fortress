@@ -34,6 +34,7 @@ inline void handle_events()
         handle_window(&event);
         handle_ui(&event);
     };
+    handle_keyboard();
 }
 
 void play_button_action()
@@ -197,6 +198,13 @@ void main_menu_update()
 void play_menu_update()
 {
     handle_events();
+
+    if((keyboard_hnd.kmap[SDL_SCANCODE_F11]==1)&&(keyboard_hnd.last_kmap[SDL_SCANCODE_F11]==0))
+    {
+    static bool fullscreen=false;
+    fullscreen^=1;
+    SDL_SetWindowFullscreen(window_hnd.window,fullscreen?SDL_WINDOW_FULLSCREEN_DESKTOP:0);
+    }
 
     current_text_input = &menu_data.ip_input;
     current_text_input_texture_handle = &runtime_assets.ip_text_input_texture;

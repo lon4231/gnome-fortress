@@ -19,6 +19,8 @@ inline void init_libs()
 
 int main(int argc,char*argv[])
 {
+    srand(time(NULL));
+    
     init_libs();
     init_window_hnd();
     init_keyboard();

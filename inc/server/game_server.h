@@ -19,10 +19,15 @@ struct game_server_state_t
 
     uint8_t board[BOARD_W * BOARD_H];
     uint8_t disp_board[BOARD_W * BOARD_H];
-
+    
+    uint8_t upper_board[BOARD_W * BOARD_H];
+    uint8_t upper_disp_board[BOARD_W * BOARD_H];
+    
     uint8_t client_count;
     game_server_client_t clients[MAX_CLIENTS];
 };
+
+void init_game_state(game_server_state_t*state,uint32_t client_count);
 
 void update_game_state(game_server_state_t*state);
 
