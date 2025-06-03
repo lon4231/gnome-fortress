@@ -17,21 +17,21 @@ inline void init_libs()
     TTF_Init();
 }
 
-int main(int argc,char*argv[])
+int main(int argc, char *argv[])
 {
     srand(time(NULL));
-    
+
     init_libs();
     init_window_hnd();
     init_keyboard();
     load_assets();
-    
+
     main_menu_init();
 
     scene_fn_handle = main_menu_update;
 
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
-    Mix_PlayMusic(runtime_assets.songloop0,-1);
+    Mix_PlayMusic(runtime_assets.songloop0, -1);
 
     while (window_hnd.running)
     {

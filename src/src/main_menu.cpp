@@ -44,14 +44,14 @@ void play_button_action()
 
 void host_button_action()
 {
-game_init();
-scene_fn_handle=game_update;
+    game_init();
+    scene_fn_handle = game_update;
 }
 
 void join_button_action()
 {
-game_init();
-scene_fn_handle=game_update;
+    game_init();
+    scene_fn_handle = game_update;
 }
 
 SDL_Texture **current_text_input_texture_handle;
@@ -178,6 +178,12 @@ void main_menu_update()
 {
     handle_events();
 
+    if ((keyboard_hnd.kmap[SDL_SCANCODE_F11] == 1) && (keyboard_hnd.last_kmap[SDL_SCANCODE_F11] == 0))
+    {
+        window_hnd.fullscreen ^= 1;
+        SDL_SetWindowFullscreen(window_hnd.window, window_hnd.fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+    }
+
     buttons_rect_ptr = &menu_data.p_button_trect;
     handle_ui_button(&menu_data.p_button);
 
@@ -199,11 +205,10 @@ void play_menu_update()
 {
     handle_events();
 
-    if((keyboard_hnd.kmap[SDL_SCANCODE_F11]==1)&&(keyboard_hnd.last_kmap[SDL_SCANCODE_F11]==0))
+    if ((keyboard_hnd.kmap[SDL_SCANCODE_F11] == 1) && (keyboard_hnd.last_kmap[SDL_SCANCODE_F11] == 0))
     {
-    static bool fullscreen=false;
-    fullscreen^=1;
-    SDL_SetWindowFullscreen(window_hnd.window,fullscreen?SDL_WINDOW_FULLSCREEN_DESKTOP:0);
+        window_hnd.fullscreen ^= 1;
+        SDL_SetWindowFullscreen(window_hnd.window, window_hnd.fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
     }
 
     current_text_input = &menu_data.ip_input;
@@ -219,7 +224,6 @@ void play_menu_update()
     handle_ui_button(&menu_data.host_button);
     buttons_rect_ptr = &menu_data.join_button_trect;
     handle_ui_button(&menu_data.join_button);
-
 
     SDL_SetRenderTarget(window_hnd.renderer, window_hnd.render_texture);
 

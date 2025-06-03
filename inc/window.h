@@ -21,6 +21,8 @@ struct window_hnd_t
     uint32_t window_h;
 
     bool running;
+
+    bool fullscreen;
 };
 
 extern window_hnd_t window_hnd;

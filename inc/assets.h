@@ -5,6 +5,7 @@
 
 struct runtime_assets_t
 {
+    SDL_Texture *game_bg;
     SDL_Texture *menu_bg;
     SDL_Texture *title_texture;
     SDL_Texture *buttons_texture;

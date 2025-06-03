@@ -33,19 +33,19 @@ void draw_board()
     SDL_Rect trect = {0, 0, 8, 8};
     SDL_Rect upper_trect = {0, 0, 8, 8};
     SDL_Rect rect = {0, 0, 8, 8};
-    
+
     for (uint32_t i = 0; i < BOARD_W * BOARD_H; ++i)
     {
         trect.x = game_state.remote_state.board[i] * 8;
         trect.y = game_state.remote_state.disp_board[i] * 8;
-        
+
         upper_trect.x = game_state.remote_state.upper_board[i] * 8;
         upper_trect.y = game_state.remote_state.upper_disp_board[i] * 8;
-        
+
         rect.x = (i % BOARD_W) * 8;
         rect.y = (i / BOARD_W) * 8;
         SDL_RendererFlip flip = SDL_FLIP_NONE;
-        if (((game_state.remote_state.disp_board[i]^i)&1) == 1)
+        if (((game_state.remote_state.disp_board[i] ^ i) & 1) == 1)
         {
             flip = SDL_FLIP_HORIZONTAL;
         }
@@ -66,14 +66,15 @@ inline void handle_events()
         handle_window(&event);
         handle_ui(&event);
     };
+    handle_keyboard();
 }
 
 void game_init()
 {
-    init_game_state(&game_state.remote_state,8);
+    init_game_state(&game_state.remote_state, 8);
 
     game_state.board_texture = SDL_CreateTexture(window_hnd.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, BOARD_W * 8, BOARD_H * 8);
-    game_state.board_rect = {0, 0, BOARD_W*16,BOARD_H*16};
+    game_state.board_rect = {0, 0, BOARD_W * 16, BOARD_H * 16};
 
     ui_layer.ready_button_trect = {192, 0, 64, 32};
     ui_layer.ready_button =
@@ -95,6 +96,12 @@ void game_update()
 {
     handle_events();
 
+    if ((keyboard_hnd.kmap[SDL_SCANCODE_F11] == 1) && (keyboard_hnd.last_kmap[SDL_SCANCODE_F11] == 0))
+    {
+        window_hnd.fullscreen ^= 1;
+        SDL_SetWindowFullscreen(window_hnd.window, window_hnd.fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+    }
+
     buttons_rect_ptr = &ui_layer.ready_button_trect;
     handle_ui_button(&ui_layer.ready_button);
 
@@ -104,6 +111,8 @@ void game_update()
     SDL_RenderClear(window_hnd.renderer);
 
     draw_board();
+
+    SDL_RenderCopy(window_hnd.renderer, runtime_assets.game_bg, NULL, NULL);
 
     SDL_RenderCopy(window_hnd.renderer, game_state.board_texture, NULL, &game_state.board_rect);
 
