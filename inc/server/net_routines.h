@@ -3,19 +3,33 @@
 
 #include <headers.h>
 
-inline void routines_send_tcp(TCPsocket socket, void *buffer, uint32_t size)
+struct request_header_t
 {
-    uint32_t net_size = SDL_SwapBE32(size);
-    SDLNet_TCP_Send(socket, &net_size, 4);
-    SDLNet_TCP_Send(socket, buffer, size);
+    void *ptr;
+    uint32_t size;
+};
+
+inline void request_data_from_ptr(TCPsocket socket, void *ptr, void *buffer, uint32_t size)
+{
+    request_header_t request = {ptr, size};
+
+    SDLNet_TCP_Send(socket, &request, sizeof(request_header_t));
+
+    uint32_t recieved=0;
+
+    while (recieved!=size)
+    {
+        recieved+=SDLNet_TCP_Recv(socket,buffer,1);
+    }
+    
+
 }
 
-inline void routines_recv_tcp(TCPsocket socket, void *buffer,uint32_t buffer_size, uint32_t *size)
+inline void handle_data_request(TCPsocket socket)
 {
-    uint32_t net_size;
-    SDLNet_TCP_Recv(socket, &net_size, 4);
-    *size = SDL_SwapBE32(net_size);
-    SDLNet_TCP_Recv(socket, buffer, *size);
+    request_header_t request;
+    SDLNet_TCP_Recv(socket, &request, sizeof(request_header_t));
+    SDLNet_TCP_Send(socket, request.ptr, request.size);
 }
 
 #endif

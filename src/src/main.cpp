@@ -28,6 +28,9 @@ int main(int argc,char*argv[])
 
     scene_fn_handle = main_menu_update;
 
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
+    Mix_PlayMusic(runtime_assets.songloop0,-1);
+
     while (window_hnd.running)
     {
         if (scene_fn_handle != nullptr)

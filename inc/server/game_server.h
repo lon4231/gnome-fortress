@@ -18,6 +18,7 @@ struct game_server_state_t
 {
 
     uint8_t board[BOARD_W * BOARD_H];
+    uint8_t disp_board[BOARD_W * BOARD_H];
 
     uint8_t client_count;
     game_server_client_t clients[MAX_CLIENTS];

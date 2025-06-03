@@ -13,6 +13,7 @@ void server_handle()
 
 for(uint8_t i=0;i<server_hnd.client_count;++i)
 {
-routines_send_tcp(server_hnd.client_handles[i].socket,&server_hnd.state,sizeof(game_server_state_t));
+SDLNet_SocketReady(server_hnd.client_handles[i].socket);
+
 }
 }

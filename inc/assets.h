@@ -14,6 +14,8 @@ struct runtime_assets_t
 
     SDL_Texture *board_tiles;
 
+    Mix_Music* songloop0;
+    Mix_Music* songloop1;
 };
 
 extern runtime_assets_t runtime_assets;
