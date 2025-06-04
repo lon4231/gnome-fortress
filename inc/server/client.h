@@ -2,18 +2,32 @@
 #define _CLIENT_FUCKSHITFUCK_DEFINED
 
 #include <game_server.h>
-#include <net_routines.h>
+#include <server.h>
 
-struct client_hnd_t
+extern IPaddress client_ip;
+extern TCPsocket client_socket;
+
+
+inline void client_send_request(TCPsocket sock,DATA_REQUEST_TYPE request_type,void*ret_buff)
 {
-    SDLNet_SocketSet set;
-    TCPsocket socket;
-    IPaddress addr;
-};
+data_request_t request={request_type};
 
-extern client_hnd_t client_handle;
+SDLNet_TCP_Send(sock,&request,sizeof(data_request_t));
 
-void init_client();
+switch (request_type)
+{
+case DATA_REQUEST_STATE:
+    SDLNet_TCP_Recv(sock,ret_buff,sizeof(game_server_state_t));
+    break;
+
+default:
+    break;
+}
+}
+
+
+void init_client(const char*host);
 void handle_client();
+
 
 #endif

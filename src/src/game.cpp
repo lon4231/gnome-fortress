@@ -6,6 +6,7 @@
 #include <assets.h>
 
 #include <server.h>
+#include <client.h>
 
 struct ui_layer_t
 {
@@ -71,7 +72,9 @@ inline void handle_events()
 
 void game_init()
 {
-    init_game_state(&game_state.remote_state, 8);
+    client_send_request(client_socket,DATA_REQUEST_STATE,&game_state.remote_state);
+    printf("request?\n");
+
 
     game_state.board_texture = SDL_CreateTexture(window_hnd.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, BOARD_W * 8, BOARD_H * 8);
     game_state.board_rect = {0, 0, BOARD_W * 16, BOARD_H * 16};
@@ -95,6 +98,7 @@ void game_init()
 void game_update()
 {
     handle_events();
+    handle_client();
 
     if ((keyboard_hnd.kmap[SDL_SCANCODE_F11] == 1) && (keyboard_hnd.last_kmap[SDL_SCANCODE_F11] == 0))
     {

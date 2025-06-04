@@ -10,7 +10,6 @@ struct runtime_assets_t
     SDL_Texture *title_texture;
     SDL_Texture *buttons_texture;
     SDL_Texture *ip_text_input_texture;
-    SDL_Texture *port_text_input_texture;
     SDL_Texture *name_text_input_texture;
 
     SDL_Texture *board_tiles;
