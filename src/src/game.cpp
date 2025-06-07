@@ -3,17 +3,11 @@
 #include <rndr_routines.h>
 #include <keyboard.h>
 #include <ui.h>
+#include <rndr_routines.h>
 #include <assets.h>
 
 #include <server.h>
 #include <client.h>
-
-struct ui_layer_t
-{
-
-    SDL_Rect ready_button_trect;
-    ui_button_t ready_button;
-};
 
 game_state_t game_state;
 ui_layer_t ui_layer;
@@ -25,6 +19,11 @@ void game_buttons_default() { buttons_rect_ptr->y = 0; }
 
 void game_buttons_ready()
 {
+    if (ui_layer.button_active)
+    {
+        client_send_request(client_socket, DATA_REQUEST_READY, NULL);
+        ui_layer.button_active = false;
+    }
 }
 
 void draw_board()
@@ -72,9 +71,7 @@ inline void handle_events()
 
 void game_init()
 {
-    client_send_request(client_socket,DATA_REQUEST_STATE,&game_state.remote_state);
-    printf("request?\n");
-
+    client_send_request(client_socket, DATA_REQUEST_STATE, &game_state.remote_state);
 
     game_state.board_texture = SDL_CreateTexture(window_hnd.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, BOARD_W * 8, BOARD_H * 8);
     game_state.board_rect = {0, 0, BOARD_W * 16, BOARD_H * 16};
@@ -90,10 +87,38 @@ void game_init()
 
         };
 
+    ui_layer.button_active=true;
+
+    game_state.text_wall_size=6;
+    game_state.text_wall=(char**)malloc(game_state.text_wall_size*sizeof(char*));
+    game_state.text_wall_texture=(SDL_Texture**)malloc(game_state.text_wall_size*sizeof(SDL_Texture*));
+    memset(game_state.text_wall,0,game_state.text_wall_size*sizeof(char*));
+    memset(game_state.text_wall_texture,0,game_state.text_wall_size*sizeof(char*));
+
     Mix_HaltMusic();
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
     Mix_PlayMusic(runtime_assets.songloop1, -1);
 }
+
+void draw_text_wall()
+{
+for(uint32_t i=0;i<game_state.text_wall_size;++i)
+{
+if((game_state.text_wall[i]!=nullptr)&&(game_state.text_wall_texture[i]!=nullptr))
+{
+SDL_Rect text_rect={516,i*16,strlen(game_state.text_wall[i])*16,16};
+
+SDL_RenderCopy(window_hnd.renderer,game_state.text_wall_texture[i],NULL,&text_rect);
+}
+}
+}
+
+void update_text_wall()
+{
+
+
+}
+
 
 void game_update()
 {
@@ -120,7 +145,10 @@ void game_update()
 
     SDL_RenderCopy(window_hnd.renderer, game_state.board_texture, NULL, &game_state.board_rect);
 
+    draw_text_wall();
+
     SDL_RenderCopy(window_hnd.renderer, runtime_assets.buttons_texture, &ui_layer.ready_button_trect, &ui_layer.ready_button.rect);
+
 
     SDL_SetRenderTarget(window_hnd.renderer, NULL);
     routines_draw_window();

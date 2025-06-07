@@ -11,10 +11,13 @@ struct game_server_client_t
 {
     char name[8];
     uint32_t poblation;
+    float poblation_breed_rate;
+    
 }__attribute__((packed));
 
 struct game_server_state_t
 {
+    uint32_t hunger;
 
     uint8_t board[BOARD_W * BOARD_H];
     uint8_t disp_board[BOARD_W * BOARD_H];

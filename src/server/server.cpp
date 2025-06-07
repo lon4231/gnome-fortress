@@ -1,5 +1,6 @@
 #include <server.h>
 #include <game_server.h>
+#include <client.h>
 
 bool running;
 
@@ -47,7 +48,7 @@ void handle_client_joins()
 
 void handle_requests()
 {
-    int num_ready = SDLNet_CheckSockets(server_set, 0);
+    int num_ready = SDLNet_CheckSockets(server_set, 10);
     if (num_ready <= 0)
     {
         return;
@@ -72,11 +73,15 @@ void handle_requests()
                 --i;
                 continue;
             }
-
+            printf("recv request: %d\r\n",data_request.request_type);
             switch (data_request.request_type)
             {
             case DATA_REQUEST_STATE:
                 SDLNet_TCP_Send(sock, &game_state, sizeof(game_server_state_t));
+                break;
+
+            case DATA_REQUEST_READY:
+                players_ready++;
                 break;
 
             default:
@@ -88,6 +93,7 @@ void handle_requests()
 
 int main(int argc, char *argv[])
 {
+    srand(time(NULL));
     SDL_Init(SDL_INIT_EVERYTHING);
     SDLNet_Init();
     SDLNet_ResolveHost(&server_addr, NULL, 0xB00B);
@@ -100,7 +106,19 @@ int main(int argc, char *argv[])
     {
         handle_events();
         handle_client_joins();
-        handle_requests();
+        if (clients_connected > 0)
+        {
+            handle_requests();
+            if (players_ready >= clients_connected)
+            {
+                update_game_state(&game_state);
+                for (uint32_t i = 0; i < clients_connected; ++i)
+                {
+                    client_send_request(client_sockets[i], DATA_REQUEST_READY, NULL);
+                }
+                players_ready=0;
+            }
+        }
     }
 
     return 0;

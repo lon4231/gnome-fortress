@@ -37,3 +37,18 @@ void init_game_state(game_server_state_t *game_state, uint32_t client_count)
         }
     }
 }
+
+void update_game_state(game_server_state_t*game_state)
+{
+
+for(uint32_t i=0;i<game_state->client_count;++i)
+{
+game_server_client_t*client=&game_state->clients[i];
+
+client->poblation*=client->poblation_breed_rate;
+
+
+
+}
+
+}

@@ -29,6 +29,7 @@ inline SDL_Texture *routines_render_text_texture(const char *text, SDL_Color col
     return texture;
 }
 
+
 inline void routines_draw_window()
 {
     SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 255);
