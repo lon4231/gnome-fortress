@@ -38,6 +38,7 @@ void handle_client()
             ui_layer.button_active = true;
             client_send_request(client_socket, DATA_REQUEST_STATE, &game_state.remote_state);
 
+            update_text_wall();
             break;
 
         default:

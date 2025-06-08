@@ -6,6 +6,10 @@
 typedef void (*ui_action_t)();
 
 extern char text_input_char;
+extern uint32_t mouse_x;
+extern uint32_t mouse_y;
+
+
 
 struct ui_button_t
 {

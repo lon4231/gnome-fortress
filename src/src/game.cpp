@@ -69,6 +69,103 @@ inline void handle_events()
     handle_keyboard();
 }
 
+const char *tile_names[] =
+    {
+        "nothing",
+        "fortress",
+        "nothing",
+        "tree",
+        "rock"};
+
+void draw_tile_data()
+{
+    static char str[128];
+    SDL_Texture *text_texture = NULL;
+
+    if ((mouse_x < 512) && (mouse_y < 512))
+    {
+        int tile_x = mouse_x / 16;
+        int tile_y = mouse_y / 16;
+        int index = tile_x + tile_y * BOARD_W;
+
+        const char *tile_name = tile_names[0]; // default
+        uint8_t type = game_state.remote_state.upper_board[index];
+        if (type < sizeof(tile_names) / sizeof(tile_names[0])) {
+            tile_name = tile_names[type];
+        }
+
+        if (type == 1) // fortress
+        {
+            uint8_t disp = game_state.remote_state.upper_disp_board[index];
+            const char* name = game_state.remote_state.clients[disp].name;
+            sprintf(str, "type: %s\nplayer: %s\nid: %d", tile_name, name, disp + 1);
+
+            SDL_Surface *surface = TTF_RenderText_Solid_Wrapped(window_hnd.font, str, (SDL_Color){255,255,255,255}, 160);
+            if (!surface) return;
+
+            text_texture = SDL_CreateTextureFromSurface(window_hnd.renderer, surface);
+            SDL_Rect text_rect = {mouse_x + 16, mouse_y, surface->w + 8, surface->h + 8};
+
+            SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 200);
+            SDL_RenderFillRect(window_hnd.renderer, &text_rect);
+
+            SDL_Rect draw_rect = {text_rect.x + 4, text_rect.y + 4, surface->w, surface->h};
+            SDL_RenderCopy(window_hnd.renderer, text_texture, NULL, &draw_rect);
+
+            SDL_FreeSurface(surface);
+        }
+        else
+        {
+            sprintf(str, "type: %s", tile_name);
+            text_texture = routines_render_text_texture(str, (SDL_Color){255,255,255,255});
+
+            if (text_texture) {
+                int texW, texH;
+                SDL_QueryTexture(text_texture, NULL, NULL, &texW, &texH);
+                SDL_Rect text_rect = {mouse_x + 16, mouse_y, texW + 8, texH + 8};
+
+                SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 200);
+                SDL_RenderFillRect(window_hnd.renderer, &text_rect);
+
+                SDL_Rect draw_rect = {text_rect.x + 4, text_rect.y + 4, texW, texH};
+                SDL_RenderCopy(window_hnd.renderer, text_texture, NULL, &draw_rect);
+            }
+        }
+
+        if (text_texture) SDL_DestroyTexture(text_texture);
+    }
+}
+
+
+void draw_text_wall()
+{
+    for (uint32_t i = 0; i < game_state.text_wall_size; ++i)
+    {
+        if ((game_state.text_wall[i] != nullptr) && (game_state.text_wall_texture[i] != nullptr))
+        {
+            SDL_Rect text_rect = {516, i * 16, strlen(game_state.text_wall[i]) * 16, 16};
+
+            SDL_RenderCopy(window_hnd.renderer, game_state.text_wall_texture[i], NULL, &text_rect);
+        }
+    }
+}
+
+void update_text_wall()
+{
+    for (uint32_t i = 0; i < game_state.text_wall_size; ++i)
+    {
+        if ((game_state.text_wall[i] != nullptr))
+        {
+            if (game_state.text_wall_texture[i] != NULL)
+            {
+                SDL_DestroyTexture(game_state.text_wall_texture[i]);
+                game_state.text_wall_texture[i] = NULL;
+            }
+            game_state.text_wall_texture[i] = routines_render_text_texture(game_state.text_wall[i], {255, 255, 255, 255});
+        }
+    }
+}
+
 void game_init()
 {
     client_send_request(client_socket, DATA_REQUEST_STATE, &game_state.remote_state);
@@ -87,38 +184,25 @@ void game_init()
 
         };
 
-    ui_layer.button_active=true;
+    ui_layer.button_active = true;
 
-    game_state.text_wall_size=6;
-    game_state.text_wall=(char**)malloc(game_state.text_wall_size*sizeof(char*));
-    game_state.text_wall_texture=(SDL_Texture**)malloc(game_state.text_wall_size*sizeof(SDL_Texture*));
-    memset(game_state.text_wall,0,game_state.text_wall_size*sizeof(char*));
-    memset(game_state.text_wall_texture,0,game_state.text_wall_size*sizeof(char*));
+    game_state.text_wall_size = 6;
+    game_state.text_wall = (const char **)malloc(game_state.text_wall_size * sizeof(const char *));
+    game_state.text_wall_texture = (SDL_Texture **)malloc(game_state.text_wall_size * sizeof(SDL_Texture *));
+    memset(game_state.text_wall, 0, game_state.text_wall_size * sizeof(const char *));
+    memset(game_state.text_wall_texture, 0, game_state.text_wall_size * sizeof(char *));
+
+    game_state.text_wall[0] = (const char *)malloc(32 + 1);
+    memset((void *)game_state.text_wall[0], 0, 33);
+
+    sprintf((char *)game_state.text_wall[0], "poblation: % 4d", game_state.remote_state.clients[0].poblation);
+
+    update_text_wall();
 
     Mix_HaltMusic();
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
     Mix_PlayMusic(runtime_assets.songloop1, -1);
 }
-
-void draw_text_wall()
-{
-for(uint32_t i=0;i<game_state.text_wall_size;++i)
-{
-if((game_state.text_wall[i]!=nullptr)&&(game_state.text_wall_texture[i]!=nullptr))
-{
-SDL_Rect text_rect={516,i*16,strlen(game_state.text_wall[i])*16,16};
-
-SDL_RenderCopy(window_hnd.renderer,game_state.text_wall_texture[i],NULL,&text_rect);
-}
-}
-}
-
-void update_text_wall()
-{
-
-
-}
-
 
 void game_update()
 {
@@ -142,13 +226,12 @@ void game_update()
     draw_board();
 
     SDL_RenderCopy(window_hnd.renderer, runtime_assets.game_bg, NULL, NULL);
+    SDL_RenderCopy(window_hnd.renderer, runtime_assets.buttons_texture, &ui_layer.ready_button_trect, &ui_layer.ready_button.rect);
 
     SDL_RenderCopy(window_hnd.renderer, game_state.board_texture, NULL, &game_state.board_rect);
 
     draw_text_wall();
-
-    SDL_RenderCopy(window_hnd.renderer, runtime_assets.buttons_texture, &ui_layer.ready_button_trect, &ui_layer.ready_button.rect);
-
+    draw_tile_data();
 
     SDL_SetRenderTarget(window_hnd.renderer, NULL);
     routines_draw_window();

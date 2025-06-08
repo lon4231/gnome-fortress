@@ -7,6 +7,8 @@
 extern IPaddress client_ip;
 extern TCPsocket client_socket;
 
+extern uint32_t client_id;
+
 inline void client_send_request(TCPsocket sock, DATA_REQUEST_TYPE request_type, void *ret_buff)
 {
     printf("sent request: %d\r\n",request_type);

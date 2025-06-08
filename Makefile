@@ -11,7 +11,7 @@ gfrs_src:=$(wildcard src/server/*.cpp) $(wildcard src/server/*/*.cpp)
 gfr_inc:=-Iinc -Iinc/server
 mingw_gfr_inc:=-Iinc -Iinc/server -Ilibs/mingw/include
 
-gfr_cflags:=-O3 -fno-stack-protector
+gfr_cflags:=-O3 -fno-stack-protector -w
 
 gfr_ldflags:=-lSDL2 -lSDL2main -lSDL2_image -lSDL2_mixer -lSDL2_net -lSDL2_ttf
 mingw_gfr_ldflags:=-Llibs/mingw/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_net -lSDL2_ttf

@@ -15,7 +15,7 @@ struct game_state_t
 
     uint32_t text_wall_size;
     SDL_Texture**text_wall_texture;
-    char**text_wall;
+    const char**text_wall;
 };
 
 struct ui_layer_t
@@ -30,5 +30,7 @@ extern ui_layer_t ui_layer;
 
 void game_init();
 void game_update();
+
+void update_text_wall();
 
 #endif
