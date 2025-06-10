@@ -88,13 +88,13 @@ void draw_tile_data()
         int tile_y = mouse_y / 16;
         int index = tile_x + tile_y * BOARD_W;
 
-        const char *tile_name = tile_names[0]; // default
+        const char *tile_name = tile_names[0];
         uint8_t type = game_state.remote_state.upper_board[index];
         if (type < sizeof(tile_names) / sizeof(tile_names[0])) {
             tile_name = tile_names[type];
         }
 
-        if (type == 1) // fortress
+        if (type == 1)
         {
             uint8_t disp = game_state.remote_state.upper_disp_board[index];
             const char* name = game_state.remote_state.clients[disp].name;
@@ -168,6 +168,7 @@ void update_text_wall()
 
 void game_init()
 {
+    strcpy(game_state.remote_state.clients[0].name,client_name);
     client_send_request(client_socket, DATA_REQUEST_STATE, &game_state.remote_state);
 
     game_state.board_texture = SDL_CreateTexture(window_hnd.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, BOARD_W * 8, BOARD_H * 8);

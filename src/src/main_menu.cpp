@@ -42,7 +42,7 @@ void play_button_action()
 
 void join_button_action()
 {
-    init_client(menu_data.ip_input.buffer);
+    init_client(menu_data.ip_input.buffer,menu_data.name_input.buffer);
     game_init();
     scene_fn_handle = game_update;
 }

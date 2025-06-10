@@ -5,12 +5,15 @@ IPaddress client_ip;
 SDLNet_SocketSet client_set;
 TCPsocket client_socket;
 
-void init_client(const char *host)
+const char *client_name;
+
+void init_client(const char *host, const char *name)
 {
     SDLNet_ResolveHost(&client_ip, host, 0xB00B);
     client_socket = SDLNet_TCP_Open(&client_ip);
     client_set = SDLNet_AllocSocketSet(1);
     SDLNet_AddSocket(client_set, (SDLNet_GenericSocket)client_socket);
+    client_name = name;
 }
 
 void handle_client()
@@ -41,8 +44,15 @@ void handle_client()
             update_text_wall();
             break;
 
-        default:
-            break;
+        case DATA_REQUEST_INITIAL:
+        {
+            game_server_client_t client_init_data;
+            memcpy(client_init_data.name,client_name,8);
+            SDLNet_TCP_Send(client_socket,&client_init_data,sizeof(game_server_client_t));
+        }
+        break
+
+            default : break;
         }
     }
 }

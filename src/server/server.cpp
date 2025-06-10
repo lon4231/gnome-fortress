@@ -7,6 +7,7 @@ bool running;
 uint32_t players_ready = 0;
 uint32_t clients_connected = 0;
 
+game_server_state_t old_game_state;
 game_server_state_t game_state;
 
 SDLNet_SocketSet server_set;
@@ -14,6 +15,7 @@ SDLNet_SocketSet server_set;
 IPaddress server_addr;
 TCPsocket server_socket;
 TCPsocket client_sockets[MAX_CLIENTS];
+game_server_state_t remote_states[MAX_CLIENTS];
 
 inline void handle_events()
 {
@@ -41,7 +43,8 @@ void handle_client_joins()
     {
         client_sockets[clients_connected] = newsocket;
         SDLNet_TCP_AddSocket(server_set, newsocket);
-
+        game_server_client_t initial_game_server_client;
+        client_send_request(newsocket,DATA_REQUEST_INITIAL,&game_state);
         clients_connected++;
     }
 }
@@ -73,7 +76,7 @@ void handle_requests()
                 --i;
                 continue;
             }
-            printf("recv request: %d\r\n",data_request.request_type);
+            printf("recv request: %d\r\n", data_request.request_type);
             switch (data_request.request_type)
             {
             case DATA_REQUEST_STATE:
@@ -81,6 +84,8 @@ void handle_requests()
                 break;
 
             case DATA_REQUEST_READY:
+                client_send_request(client_sockets[i], DATA_REQUEST_STATE, &remote_states[i]);
+
                 players_ready++;
                 break;
 
@@ -111,12 +116,13 @@ int main(int argc, char *argv[])
             handle_requests();
             if (players_ready >= clients_connected)
             {
+                old_game_state = game_state;
                 update_game_state(&game_state);
                 for (uint32_t i = 0; i < clients_connected; ++i)
                 {
                     client_send_request(client_sockets[i], DATA_REQUEST_READY, NULL);
                 }
-                players_ready=0;
+                players_ready = 0;
             }
         }
     }
