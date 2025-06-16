@@ -8,7 +8,7 @@ extern IPaddress client_ip;
 extern TCPsocket client_socket;
 
 extern uint32_t client_id;
-extern char*client_name;
+extern char client_name[8];
 
 inline void client_send_request(TCPsocket sock, DATA_REQUEST_TYPE request_type, void *ret_buff)
 {
@@ -26,6 +26,10 @@ inline void client_send_request(TCPsocket sock, DATA_REQUEST_TYPE request_type, 
     case DATA_REQUEST_READY:
     
         break;
+
+    case DATA_REQUEST_INITIAL:
+                SDLNet_TCP_Recv(sock, ret_buff, sizeof(game_server_client_t));
+    break;
 
     default:
         break;

@@ -44,7 +44,8 @@ void handle_client_joins()
         client_sockets[clients_connected] = newsocket;
         SDLNet_TCP_AddSocket(server_set, newsocket);
         game_server_client_t initial_game_server_client;
-        client_send_request(newsocket,DATA_REQUEST_INITIAL,&game_state);
+        client_send_request(newsocket,DATA_REQUEST_INITIAL,&initial_game_server_client);
+        memcpy(&game_state.clients[clients_connected],&initial_game_server_client,sizeof(game_server_client_t));
         clients_connected++;
     }
 }

@@ -98,7 +98,7 @@ void draw_tile_data()
         {
             uint8_t disp = game_state.remote_state.upper_disp_board[index];
             const char* name = game_state.remote_state.clients[disp].name;
-            sprintf(str, "type: %s\nplayer: %s\nid: %d", tile_name, name, disp + 1);
+            sprintf(str, "type: %s\nplayer: %8s\nid: %d", tile_name, name, disp + 1);
 
             SDL_Surface *surface = TTF_RenderText_Solid_Wrapped(window_hnd.font, str, (SDL_Color){255,255,255,255}, 160);
             if (!surface) return;
