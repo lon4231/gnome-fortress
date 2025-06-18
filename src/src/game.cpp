@@ -6,59 +6,31 @@
 #include <rndr_routines.h>
 #include <assets.h>
 
-#include <server.h>
-#include <client.h>
+struct obstacle_t
+{
+    float x;
+    float y;
+    uint8_t type;
+    obstacle_t *next;
+};
+
+static float deltatime;
+static uint32_t delta_time_last;
+static uint32_t delta_time_current;
+obstacle_t *obstacle_head;
+
+int player_lives;
+uint32_t score;
 
 game_state_t game_state;
-ui_layer_t ui_layer;
-
-static SDL_Rect *buttons_rect_ptr;
-void game_buttons_hover() { buttons_rect_ptr->y = 64; }
-void game_buttons_press() { buttons_rect_ptr->y = 32; }
-void game_buttons_default() { buttons_rect_ptr->y = 0; }
-
-void game_buttons_ready()
-{
-    if (ui_layer.button_active)
-    {
-        client_send_request(client_socket, DATA_REQUEST_READY, NULL);
-        ui_layer.button_active = false;
-    }
-}
-
-void draw_board()
-{
-    SDL_SetRenderTarget(window_hnd.renderer, game_state.board_texture);
-
-    SDL_Rect trect = {0, 0, 8, 8};
-    SDL_Rect upper_trect = {0, 0, 8, 8};
-    SDL_Rect rect = {0, 0, 8, 8};
-
-    for (uint32_t i = 0; i < BOARD_W * BOARD_H; ++i)
-    {
-        trect.x = game_state.remote_state.board[i] * 8;
-        trect.y = game_state.remote_state.disp_board[i] * 8;
-
-        upper_trect.x = game_state.remote_state.upper_board[i] * 8;
-        upper_trect.y = game_state.remote_state.upper_disp_board[i] * 8;
-
-        rect.x = (i % BOARD_W) * 8;
-        rect.y = (i / BOARD_W) * 8;
-        SDL_RendererFlip flip = SDL_FLIP_NONE;
-        if (((game_state.remote_state.disp_board[i] ^ i) & 1) == 1)
-        {
-            flip = SDL_FLIP_HORIZONTAL;
-        }
-
-        SDL_RenderCopyEx(window_hnd.renderer, runtime_assets.board_tiles, &trect, &rect, 0, NULL, flip);
-        SDL_RenderCopyEx(window_hnd.renderer, runtime_assets.board_tiles, &upper_trect, &rect, 0, NULL, flip);
-    }
-
-    SDL_SetRenderTarget(window_hnd.renderer, window_hnd.render_texture);
-}
+static SDL_Rect player_rect;
 
 inline void handle_events()
 {
+    delta_time_last = delta_time_current;
+    delta_time_current = SDL_GetTicks();
+    deltatime = (delta_time_current - delta_time_last) / 1000.0f;
+
     ui_frame();
     static SDL_Event event;
     while (SDL_PollEvent(&event) != 0)
@@ -69,146 +41,157 @@ inline void handle_events()
     handle_keyboard();
 }
 
-const char *tile_names[] =
-    {
-        "nothing",
-        "fortress",
-        "nothing",
-        "tree",
-        "rock"};
-
-void draw_tile_data()
+void draw_character()
 {
-    static char str[128];
-    SDL_Texture *text_texture = NULL;
+    SDL_Rect trect = {0, 0, 8, 8};
+    player_rect = {16, (int)game_state.player_y, 32, 32};
 
-    if ((mouse_x < 512) && (mouse_y < 512))
+    SDL_RenderCopy(window_hnd.renderer, runtime_assets.board_tiles, &trect, &player_rect);
+}
+
+void character_phys_handler()
+{
+    if (game_state.player_y >= (RENDER_TEXTURE_HH + 128) - 32)
     {
-        int tile_x = mouse_x / 16;
-        int tile_y = mouse_y / 16;
-        int index = tile_x + tile_y * BOARD_W;
+        game_state.player_sy = 0;
+        game_state.player_y = (RENDER_TEXTURE_HH + 128) - 32;
+    }
 
-        const char *tile_name = tile_names[0];
-        uint8_t type = game_state.remote_state.upper_board[index];
-        if (type < sizeof(tile_names) / sizeof(tile_names[0])) {
-            tile_name = tile_names[type];
-        }
+    game_state.player_sy += 9.6f * 200 * deltatime;
+    game_state.player_sy *= 0.999;
 
-        if (type == 1)
+    if (
+        (keyboard_hnd.kmap[SDL_SCANCODE_SPACE] == 1) &&
+        (game_state.player_y >= ((RENDER_TEXTURE_HH + 128) - 32)))
+    {
+        game_state.player_sy -= 600.0f;
+    }
+
+    game_state.player_y += game_state.player_sy * deltatime;
+}
+
+void create_obstacle()
+{
+    obstacle_t *obstacle = (obstacle_t *)malloc(sizeof(obstacle_t));
+
+    obstacle->x = RENDER_TEXTURE_W + 64;
+    obstacle->y = (RENDER_TEXTURE_HH + 128) - 32;
+    obstacle->type = (rand() >> 16) % 5;
+    obstacle->next = nullptr;
+
+    if (obstacle_head != nullptr)
+    {
+        obstacle->next = obstacle_head;
+        obstacle_head = obstacle;
+    }
+    else
+    {
+        obstacle_head = obstacle;
+    }
+}
+
+void draw_obstacles()
+{
+    obstacle_t *current = obstacle_head;
+    obstacle_t *prev = nullptr;
+
+    while (current != nullptr)
+    {
+        obstacle_t *next = current->next;
+        current->x -= ((256.0f + mmax(((float)SDL_GetTicks() * 0.01f), 1024.0f)) * deltatime);
+        if (current->x <= -32)
         {
-            uint8_t disp = game_state.remote_state.upper_disp_board[index];
-            const char* name = game_state.remote_state.clients[disp].name;
-            sprintf(str, "type: %s\nplayer: %8s\nid: %d", tile_name, name, disp + 1);
+            score += 10;
 
-            SDL_Surface *surface = TTF_RenderText_Solid_Wrapped(window_hnd.font, str, (SDL_Color){255,255,255,255}, 160);
-            if (!surface) return;
+            if (prev == nullptr)
+            {
+                obstacle_head = next;
+            }
+            else
+            {
+                prev->next = next;
+            }
 
-            text_texture = SDL_CreateTextureFromSurface(window_hnd.renderer, surface);
-            SDL_Rect text_rect = {mouse_x + 16, mouse_y, surface->w + 8, surface->h + 8};
-
-            SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 200);
-            SDL_RenderFillRect(window_hnd.renderer, &text_rect);
-
-            SDL_Rect draw_rect = {text_rect.x + 4, text_rect.y + 4, surface->w, surface->h};
-            SDL_RenderCopy(window_hnd.renderer, text_texture, NULL, &draw_rect);
-
-            SDL_FreeSurface(surface);
+            free(current);
         }
         else
         {
-            sprintf(str, "type: %s", tile_name);
-            text_texture = routines_render_text_texture(str, (SDL_Color){255,255,255,255});
+            SDL_Rect trect = {current->type * 8, 8, 8, 8};
+            SDL_Rect rect = {(int)current->x, (int)current->y, 32, 32};
 
-            if (text_texture) {
-                int texW, texH;
-                SDL_QueryTexture(text_texture, NULL, NULL, &texW, &texH);
-                SDL_Rect text_rect = {mouse_x + 16, mouse_y, texW + 8, texH + 8};
+            player_rect.w -= 4;
+            player_rect.x += 2;
 
-                SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 200);
-                SDL_RenderFillRect(window_hnd.renderer, &text_rect);
-
-                SDL_Rect draw_rect = {text_rect.x + 4, text_rect.y + 4, texW, texH};
-                SDL_RenderCopy(window_hnd.renderer, text_texture, NULL, &draw_rect);
-            }
-        }
-
-        if (text_texture) SDL_DestroyTexture(text_texture);
-    }
-}
-
-
-void draw_text_wall()
-{
-    for (uint32_t i = 0; i < game_state.text_wall_size; ++i)
-    {
-        if ((game_state.text_wall[i] != nullptr) && (game_state.text_wall_texture[i] != nullptr))
-        {
-            SDL_Rect text_rect = {516, i * 16, strlen(game_state.text_wall[i]) * 16, 16};
-
-            SDL_RenderCopy(window_hnd.renderer, game_state.text_wall_texture[i], NULL, &text_rect);
-        }
-    }
-}
-
-void update_text_wall()
-{
-    for (uint32_t i = 0; i < game_state.text_wall_size; ++i)
-    {
-        if ((game_state.text_wall[i] != nullptr))
-        {
-            if (game_state.text_wall_texture[i] != NULL)
+            if (SDL_HasIntersection(&rect, &player_rect))
             {
-                SDL_DestroyTexture(game_state.text_wall_texture[i]);
-                game_state.text_wall_texture[i] = NULL;
+                printf("STOP TOUCHING MY PEANITS\r\n");
+                current->x = -1000;
+                player_lives--;
+                if (player_lives == 0)
+                {
+                    printf("SCORE: %d\n",score);
+                    exit(0xDEAD);
+                }
             }
-            game_state.text_wall_texture[i] = routines_render_text_texture(game_state.text_wall[i], {255, 255, 255, 255});
+
+            SDL_SetRenderDrawColor(window_hnd.renderer, 255, 255, 255, 255);
+            SDL_RenderCopy(window_hnd.renderer, runtime_assets.board_tiles, &trect, &rect);
+            prev = current;
         }
+
+        current = next;
     }
+}
+
+void draw_sky()
+{
+    SDL_Rect rect = {(SDL_GetTicks() >> 2) % RENDER_TEXTURE_W, 0, 800, 600};
+    SDL_RenderCopy(window_hnd.renderer, runtime_assets.game_bg, NULL, &rect);
+    rect.x -= 800;
+    SDL_RenderCopy(window_hnd.renderer, runtime_assets.game_bg, NULL, &rect);
 }
 
 void game_init()
 {
-    strcpy(game_state.remote_state.clients[0].name,client_name);
-    client_send_request(client_socket, DATA_REQUEST_STATE, &game_state.remote_state);
+    obstacle_head = nullptr;
 
-    game_state.board_texture = SDL_CreateTexture(window_hnd.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, BOARD_W * 8, BOARD_H * 8);
-    game_state.board_rect = {0, 0, BOARD_W * 16, BOARD_H * 16};
-
-    ui_layer.ready_button_trect = {192, 0, 64, 32};
-    ui_layer.ready_button =
-        {
-            .rect = {RENDER_TEXTURE_W - 256, RENDER_TEXTURE_H - 128, 256, 128},
-            .onclick = game_buttons_press,
-            .onrelease = game_buttons_ready,
-            .onhover = game_buttons_hover,
-            .noton = game_buttons_default,
-
-        };
-
-    ui_layer.button_active = true;
-
-    game_state.text_wall_size = 6;
-    game_state.text_wall = (const char **)malloc(game_state.text_wall_size * sizeof(const char *));
-    game_state.text_wall_texture = (SDL_Texture **)malloc(game_state.text_wall_size * sizeof(SDL_Texture *));
-    memset(game_state.text_wall, 0, game_state.text_wall_size * sizeof(const char *));
-    memset(game_state.text_wall_texture, 0, game_state.text_wall_size * sizeof(char *));
-
-    game_state.text_wall[0] = (const char *)malloc(32 + 1);
-    memset((void *)game_state.text_wall[0], 0, 33);
-
-    sprintf((char *)game_state.text_wall[0], "poblation: % 4d", game_state.remote_state.clients[0].poblation);
-
-    update_text_wall();
+    player_lives = 3;
 
     Mix_HaltMusic();
     Mix_VolumeMusic(MIX_MAX_VOLUME / 4);
     Mix_PlayMusic(runtime_assets.songloop1, -1);
 }
 
+void draw_stat_text()
+{
+    char score_text[32];
+
+    memset(score_text, 0, 32);
+    sprintf(score_text, "score: %d", score);
+
+    SDL_Texture *texture = routines_render_text_texture(score_text, {255, 255, 255, 255});
+    SDL_Rect text_texture_rect = {0, 0, strlen(score_text) * 16, 16};
+
+    SDL_RenderCopy(window_hnd.renderer, texture, NULL, &text_texture_rect);
+
+    SDL_DestroyTexture(texture);
+
+    memset(score_text, 0, 32);
+    sprintf(score_text, "lives: %d", player_lives);
+
+    texture = routines_render_text_texture(score_text, {255, 255, 255, 255});
+    text_texture_rect = {0, 16, (int)strlen(score_text) * 16, 16};
+
+    SDL_RenderCopy(window_hnd.renderer, texture, NULL, &text_texture_rect);
+
+    SDL_DestroyTexture(texture);
+}
+
 void game_update()
 {
     handle_events();
-    handle_client();
+
+    character_phys_handler();
 
     if ((keyboard_hnd.kmap[SDL_SCANCODE_F11] == 1) && (keyboard_hnd.last_kmap[SDL_SCANCODE_F11] == 0))
     {
@@ -216,24 +199,38 @@ void game_update()
         SDL_SetWindowFullscreen(window_hnd.window, window_hnd.fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
     }
 
-    buttons_rect_ptr = &ui_layer.ready_button_trect;
-    handle_ui_button(&ui_layer.ready_button);
-
     SDL_SetRenderTarget(window_hnd.renderer, window_hnd.render_texture);
 
-    SDL_SetRenderDrawColor(window_hnd.renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(window_hnd.renderer, 0x4f, 0xa4, 0xb8, 255);
     SDL_RenderClear(window_hnd.renderer);
 
-    draw_board();
+    SDL_Rect rect = {-32, RENDER_TEXTURE_HH, RENDER_TEXTURE_W + 32, RENDER_TEXTURE_H};
+    SDL_SetRenderDrawColor(window_hnd.renderer, 0x28, 0x35, 0x40, 255);
+    SDL_RenderFillRect(window_hnd.renderer, &rect);
 
-    SDL_RenderCopy(window_hnd.renderer, runtime_assets.game_bg, NULL, NULL);
-    SDL_RenderCopy(window_hnd.renderer, runtime_assets.buttons_texture, &ui_layer.ready_button_trect, &ui_layer.ready_button.rect);
+    SDL_SetRenderDrawColor(window_hnd.renderer, 0x14, 0x18, 0x2e, 255);
+    for (uint8_t i = 0; i < 4; ++i)
+    {
+        rect.y++;
+        SDL_RenderDrawRect(window_hnd.renderer, &rect);
+    }
 
-    SDL_RenderCopy(window_hnd.renderer, game_state.board_texture, NULL, &game_state.board_rect);
+    draw_sky();
 
-    draw_text_wall();
-    draw_tile_data();
+    draw_character();
+    draw_obstacles();
+
+    draw_stat_text();
 
     SDL_SetRenderTarget(window_hnd.renderer, NULL);
     routines_draw_window();
+
+    static float ticker = 0;
+    if (ticker > mmax(2.0f - ((float)SDL_GetTicks() * 0.0001f), 0.7))
+    {
+        create_obstacle();
+        ticker = 0;
+    }
+
+    ticker += deltatime;
 }
